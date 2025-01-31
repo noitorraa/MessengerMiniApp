@@ -5,7 +5,12 @@
              x:Class="MessengerMiniApp.App">
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
+            <Color x:Key="PrimaryColor">#222F3E</Color>
+            <Color x:Key="SecondaryColor">#2C3E50</Color>
+            <Color x:Key="SeparatorColor">#34495E</Color>
+            <Color x:Key="ChatItemBackgroundColor">#2C3E50</Color>
+            <Color x:Key="MessageBubbleColor">#794d91</Color>>
+                <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>

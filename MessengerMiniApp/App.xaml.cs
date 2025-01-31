@@ -1,4 +1,6 @@
-﻿namespace MessengerMiniApp
+﻿using MessengerMiniApp.Pages;
+
+namespace MessengerMiniApp
 {
     public partial class App : Application
     {
@@ -6,7 +8,7 @@
         {
             InitializeComponent();
 
-            MainPage = new AppShell();
+            MainPage = new NavigationPage(new LoginPage());
         }
     }
 }
