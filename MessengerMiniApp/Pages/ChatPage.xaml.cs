@@ -7,7 +7,7 @@ namespace MessengerMiniApp.Pages
 {
     public partial class ChatPage : ContentPage
     {
-        private HubConnection _hubConnection;
+        private HubConnection testConnection;
         private readonly HttpClient _httpClient = new HttpClient();
         private const string ApiUrl = "https://noitorraa-messengerserver-7295.twc1.net/api/users/";
         private readonly int _userId;
@@ -42,7 +42,7 @@ namespace MessengerMiniApp.Pages
 
         private async Task ConnectToSignalR()
         {
-            _hubConnection = new HubConnectionBuilder()
+            testConnection = new HubConnectionBuilder()
                 .WithUrl("https://noitorraa-messengerserver-7295.twc1.net/chatHub", options =>
                 {
                     options.Headers["UserId"] = _userId.ToString();
@@ -50,36 +50,24 @@ namespace MessengerMiniApp.Pages
                 .Build();
 
             // Обработчик закрытия подключения
-            _hubConnection.Closed += async (error) =>
+            testConnection.Closed += async (error) =>
             {
                 await Task.Delay(5000);
                 await ConnectToSignalR();
             };
 
-            // Подписка ДО старта подключения (можно и после, но важно быть до JoinChat)
-            _hubConnection.On<MessageDto>("ReceiveNewMessage", message =>
-            {
-                Console.WriteLine($"Получено сообщение: {message.Content}");
-                MainThread.BeginInvokeOnMainThread(() => _messages.Add(message));
+            testConnection.On<string>("ReceiveTest", msg => {
+                Console.WriteLine($"TEST MESSAGE: {msg}");
             });
 
-            try
-            {
-                await _hubConnection.StartAsync();
-
-                // Вход в группу после подключения
-                await _hubConnection.InvokeAsync("JoinChat", _chatId.ToString());
-                Console.WriteLine($"Connected to chat {_chatId}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Connection error: {ex.Message}");
-            }
+            await testConnection.StartAsync();
+            await testConnection.InvokeAsync("JoinGroup", "test_group");
+            await testConnection.InvokeAsync("SendToGroup", "test_group", "Hello World");
         }
 
         private async void OnSendClicked(object sender, EventArgs e)
         {
-            await _hubConnection.InvokeAsync("SendMessage", _userId, MessageEntry.Text, _chatId);
+            await testConnection.InvokeAsync("SendMessage", _userId, MessageEntry.Text, _chatId);
             MessageEntry.Text = string.Empty;
         }
     }
