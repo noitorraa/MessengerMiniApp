@@ -7,19 +7,19 @@ namespace MessengerMiniApp.Pages
 {
     public partial class ChatPage : ContentPage
     {
-        private HubConnection testConnection;
+        private HubConnection _hubConnection;
         private readonly HttpClient _httpClient = new HttpClient();
         private const string ApiUrl = "https://noitorraa-messengerserver-7295.twc1.net/api/users/";
         private readonly int _userId;
         private readonly int _chatId;
-        private ObservableCollection<MessageDto> _messages;
+        private ObservableCollection<string> _messages;
 
         public ChatPage(int userId, int chatId)
         {
             InitializeComponent();
             _userId = userId;
             _chatId = chatId;
-            _messages = new ObservableCollection<MessageDto>();
+            _messages = new ObservableCollection<string>();
             MessagesCollectionView.ItemsSource = _messages;
             LoadMessages();
             _ = ConnectToSignalR(); // Используем дискорд для асинхронного вызова
@@ -30,9 +30,7 @@ namespace MessengerMiniApp.Pages
             var response = await _httpClient.GetAsync($"{ApiUrl}chats/{_chatId}/messages");
             if (response.IsSuccessStatusCode)
             {
-                var json = await response.Content.ReadAsStringAsync();
-                var messages = JsonConvert.DeserializeObject<List<MessageDto>>(json);
-
+                var messages = JsonConvert.DeserializeObject<List<string>>(await response.Content.ReadAsStringAsync());
                 foreach (var message in messages)
                 {
                     _messages.Add(message);
@@ -40,45 +38,46 @@ namespace MessengerMiniApp.Pages
             }
         }
 
+        private async void OnSendClicked(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(MessageEntry.Text))
+            {
+                await _hubConnection.InvokeAsync("SendMessage", _userId, MessageEntry.Text, _chatId);
+                MessageEntry.Text = string.Empty;
+            }
+        }
+
         private async Task ConnectToSignalR()
         {
-            testConnection = new HubConnectionBuilder()
-                .WithUrl("https://noitorraa-messengerserver-7295.twc1.net/chatHub", options =>
-                {
-                    options.Headers["UserId"] = _userId.ToString();
-                })
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl("https://noitorraa-messengerserver-7295.twc1.net/chatHub")
                 .Build();
 
-            // Обработчик закрытия подключения
-            testConnection.Closed += async (error) =>
+            _hubConnection.Closed += async (error) =>
             {
                 await Task.Delay(5000);
                 await ConnectToSignalR();
             };
 
-            testConnection.On<string>("ReceiveTest", msg => {
-                Console.WriteLine($"TEST MESSAGE: {msg}");
+            // Подписка на получение сообщений
+            _hubConnection.On<string>("ReceiveMessage", (message) =>
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    _messages.Add(message); // Добавление строки в коллекцию
+                });
             });
 
-            await testConnection.StartAsync();
-            await testConnection.InvokeAsync("JoinGroup", "test_group");
-            await testConnection.InvokeAsync("SendToGroup", "test_group", "Hello World");
+            try
+            {
+                await _hubConnection.StartAsync();
+                await _hubConnection.InvokeAsync("JoinChat", _chatId); // Вход в группу
+                Console.WriteLine("Успешное подключение к чату");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка подключения: {ex.Message}");
+            }
         }
-
-        private async void OnSendClicked(object sender, EventArgs e)
-        {
-            await testConnection.InvokeAsync("SendMessage", _userId, MessageEntry.Text, _chatId);
-            MessageEntry.Text = string.Empty;
-        }
-    }
-
-    public class MessageDto
-    {
-        public int Id { get; set; }
-        public string Content { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public int SenderId { get; set; }
-        public int ChatId { get; set; }
-        public string SenderName { get; set; }
     }
 }

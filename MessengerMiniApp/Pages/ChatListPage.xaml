@@ -24,6 +24,9 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
+                        <ViewCell.ContextActions>
+                            <MenuItem Clicked="OnDeleteChat" CommandParameter="{Binding ChatId}" Text="Удалить" IsDestructive="True"/>
+                        </ViewCell.ContextActions>
                         <StackLayout Orientation="Horizontal" Padding="10" BackgroundColor="{DynamicResource ChatItemBackgroundColor}">
                             <Image Source="{Binding ChatImage}" WidthRequest="50" HeightRequest="50" Margin="0,0,10,0"/>
                             <StackLayout Orientation="Vertical" VerticalOptions="Center">

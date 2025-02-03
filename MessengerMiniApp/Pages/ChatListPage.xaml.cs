@@ -13,38 +13,86 @@ namespace MessengerMiniApp.Pages
         private readonly HttpClient _httpClient = new HttpClient();
         private const string ApiUrl = "https://noitorraa-messengerserver-7295.twc1.net/api/users/";
         private readonly int _userId;
-        private ObservableCollection<Chat> _chats;
+        private ObservableCollection<ChatDto> _chats;
 
         public ChatListPage(int userId)
         {
             InitializeComponent();
             _userId = userId;
-            _chats = new ObservableCollection<Chat>();
+            _chats = new ObservableCollection<ChatDto>();
             chatListView.ItemsSource = _chats;
-            LoadChats();
-            _ = ConnectToSignalR(); // Используем дискорд для асинхронного вызова
+            App.signalRService.OnChatListUpdated += OnChatListUpdated;
+            _ = LoadChats();
         }
 
-        private async void LoadChats()
+        private async void OnChatListUpdated()
         {
-            var response = await _httpClient.GetAsync($"{ApiUrl}chats/{_userId}");
-            if (response.IsSuccessStatusCode)
+            Console.WriteLine("Получен сигнал для обновления списка чатов");
+            await LoadChats();
+        }
+
+        protected override void OnDisappearing()
+        {
+            // Отписка при уходе со страницы
+            App.signalRService.OnChatListUpdated -= OnChatListUpdated;
+            base.OnDisappearing();
+
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await ConnectToSignalR();
+            await LoadChats(); // Обновляем список чатов при каждом появлении страницы
+        }
+
+        private async Task LoadChats()
+        {
+            try
             {
-                var chats = JsonConvert.DeserializeObject<List<Chat>>(await response.Content.ReadAsStringAsync());
-                foreach (var chat in chats)
+                var response = await _httpClient.GetAsync($"{ApiUrl}chats/{_userId}");
+                if (response.IsSuccessStatusCode)
                 {
-                    _chats.Add(chat);
+                    var chats = JsonConvert.DeserializeObject<List<ChatDto>>(
+                        await response.Content.ReadAsStringAsync()
+                    );
+
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        _chats.Clear();
+                        foreach (var chat in chats)
+                        {
+                            // Формируем название на клиенте
+                            chat.ChatName = GetChatName(chat.Members, _userId);
+                            _chats.Add(chat);
+                        }
+                    });
                 }
             }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Ошибка", ex.Message, "OK");
+            }
+        }
+
+        private string GetChatName(List<UserDto> members, int currentUserId)
+        {
+            if (members.Count == 1) return "Личный чат (ошибка)";
+
+            // Для личных чатов: имя собеседника
+            if (members.Count == 2)
+            {
+                return members.First(u => u.UserId != currentUserId).Username;
+            }
+
+            // Для групповых чатов: список всех участников
+            return string.Join(", ", members.Select(u => u.Username));
         }
 
         private async Task ConnectToSignalR()
         {
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl("https://noitorraa-messengerserver-7295.twc1.net/chatHub", options =>
-                {
-                    options.Headers["UserId"] = _userId.ToString();
-                })
+                .WithUrl("https://noitorraa-messengerserver-7295.twc1.net/chatHub")
                 .Build();
 
             _hubConnection.Closed += async (error) =>
@@ -53,12 +101,10 @@ namespace MessengerMiniApp.Pages
                 await ConnectToSignalR();
             };
 
-            _hubConnection.On<Chat>("ReceiveNewChat", (chat) => // нужно добавить событие на сервере
+            _hubConnection.On("NotifyUpdateChatList", async () =>
             {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    _chats.Add(chat);
-                });
+                Console.WriteLine("Получен сигнал для обновления списка чатов");
+                await LoadChats(); // Загружаем обновленный список чатов
             });
 
             try
@@ -109,10 +155,64 @@ namespace MessengerMiniApp.Pages
 
         private async void OnChatTapped(object sender, ItemTappedEventArgs e)
         {
-            if (e.Item is Chat chat)
+            if (e.Item is ChatDto chat)
             {
                 await Navigation.PushAsync(new ChatPage(_userId, chat.ChatId));
             }
         }
+
+        private async void OnDeleteChat(object sender, EventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            if (menuItem != null && menuItem.CommandParameter is int chatId)
+            {
+                var result = await DisplayAlert("Удаление чата", "Вы действительно хотите удалить этот чат?", "Да", "Нет");
+                if (result)
+                {
+                    await DeleteChat(chatId);
+                }
+            }
+        }
+
+        private async Task DeleteChat(int chatId)
+        {
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"{ApiUrl}chats/{chatId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        var chatToRemove = _chats.FirstOrDefault(c => c.ChatId == chatId);
+                        if (chatToRemove != null)
+                        {
+                            _chats.Remove(chatToRemove);
+                        }
+                    });
+                }
+                else
+                {
+                    await DisplayAlert("Ошибка", "Не удалось удалить чат", "ОК");
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Ошибка", ex.Message, "ОК");
+            }
+        }
+    }
+
+    public class ChatDto
+    {
+        public int ChatId { get; set; }
+        public string ChatName { get; set; } 
+        public List<UserDto> Members { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class UserDto
+    {
+        public int UserId { get; set; }
+        public string Username { get; set; }
     }
 }

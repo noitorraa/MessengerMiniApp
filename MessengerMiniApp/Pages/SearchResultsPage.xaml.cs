@@ -6,10 +6,6 @@ using System.Text;
 
 public partial class SearchResultsPage : ContentPage
 {
-	public SearchResultsPage()
-	{
-		InitializeComponent();
-	}
 
     private readonly ObservableCollection<User> _users;
     private readonly int _userId;
