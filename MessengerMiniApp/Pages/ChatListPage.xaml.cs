@@ -153,51 +153,50 @@ namespace MessengerMiniApp.Pages
             }
         }
 
-        private async void OnChatTapped(object sender, ItemTappedEventArgs e)
+        private async void OnChatTapped(object sender, SelectionChangedEventArgs e)
         {
-            if (e.Item is ChatDto chat)
+            if (e.CurrentSelection.FirstOrDefault() is ChatDto selectedChat)
             {
-                await Navigation.PushAsync(new ChatPage(_userId, chat.ChatId));
+                // Переходим на страницу чата
+                await Navigation.PushAsync(new ChatPage(_userId, selectedChat.ChatId));
             }
+
+            // Сбрасываем выделение
+            chatListView.SelectedItem = null;
         }
 
         private async void OnDeleteChat(object sender, EventArgs e)
         {
-            var menuItem = sender as MenuItem;
-            if (menuItem != null && menuItem.CommandParameter is int chatId)
-            {
-                var result = await DisplayAlert("Удаление чата", "Вы действительно хотите удалить этот чат?", "Да", "Нет");
-                if (result)
-                {
-                    await DeleteChat(chatId);
-                }
-            }
-        }
+            // Получаем элемент, который был свайпнут
+            var swipeItem = sender as SwipeItem;
+            var chat = swipeItem.BindingContext as ChatDto;
 
-        private async Task DeleteChat(int chatId)
-        {
+            if (chat == null)
+                return;
+
+            // Подтверждение удаления
+            bool confirm = await DisplayAlert("Удаление чата", $"Вы уверены, что хотите удалить чат {chat.ChatName}?", "Да", "Нет");
+            if (!confirm)
+                return;
+
             try
             {
-                var response = await _httpClient.DeleteAsync($"{ApiUrl}chats/{chatId}");
+                // Отправляем запрос на удаление чата
+                var response = await _httpClient.DeleteAsync($"{ApiUrl}chats/{chat.ChatId}");
                 if (response.IsSuccessStatusCode)
                 {
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        var chatToRemove = _chats.FirstOrDefault(c => c.ChatId == chatId);
-                        if (chatToRemove != null)
-                        {
-                            _chats.Remove(chatToRemove);
-                        }
-                    });
+                    // Удаляем чат из коллекции
+                    _chats.Remove(chat); 
+                    await DisplayAlert("Успех", "Чат удален", "OK");
                 }
                 else
                 {
-                    await DisplayAlert("Ошибка", "Не удалось удалить чат", "ОК");
+                    await DisplayAlert("Ошибка", "Не удалось удалить чат", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Ошибка", ex.Message, "ОК");
+                await DisplayAlert("Ошибка", ex.Message, "OK");
             }
         }
     }

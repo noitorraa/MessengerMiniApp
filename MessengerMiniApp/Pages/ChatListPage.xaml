@@ -15,16 +15,23 @@
                    SearchButtonPressed="OnSearchButtonPressed"/>
 
         <!-- ListView for Chat List -->
-        <ListView x:Name="chatListView"
-                  BackgroundColor="Transparent"
-                  SeparatorColor="{DynamicResource SeparatorColor}"
-                  SeparatorVisibility="Default"
-                  HasUnevenRows="True"
-                  ItemTapped="OnChatTapped">
-            <ListView.ItemTemplate>
+        <CollectionView x:Name="chatListView"
+                    BackgroundColor="Transparent"
+                    SelectionMode="Single"
+                    SelectionChanged="OnChatTapped">
+            <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <ViewCell>
+                    <SwipeView>
                         
+                        <SwipeView.LeftItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Delete"
+                                       BackgroundColor="Red"
+                                       IconImageSource="delete_icon.png"
+                                       Invoked="OnDeleteChat"/>
+                            </SwipeItems>
+                        </SwipeView.LeftItems>
+
                         <StackLayout Orientation="Horizontal" Padding="10" BackgroundColor="{DynamicResource ChatItemBackgroundColor}">
                             <Image Source="{Binding ChatImage}" WidthRequest="50" HeightRequest="50" Margin="0,0,10,0"/>
                             <StackLayout Orientation="Vertical" VerticalOptions="Center">
@@ -32,9 +39,9 @@
                                 <Label Text="{Binding LastMessage}" TextColor="LightGray" FontSize="14"/>
                             </StackLayout>
                         </StackLayout>
-                    </ViewCell>
+                    </SwipeView>
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </StackLayout>
 </ContentPage>
