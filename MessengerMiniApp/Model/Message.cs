@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace MessengerServer.Model;
@@ -16,6 +17,9 @@ public partial class Message
     public string Content { get; set; } = null!;
     [JsonPropertyName("createdAt")]
     public DateTime? CreatedAt { get; set; }
+    [JsonPropertyName("fileId")]
+    [ForeignKey("FileId")]
+    public int FileId { get; set; }
 
     public virtual Chat? Chat { get; set; }
 

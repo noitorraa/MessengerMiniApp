@@ -1,62 +1,54 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MessengerMiniApp.Pages.ChatPage"
-             Title="ChatPage"
-             BackgroundColor="{DynamicResource PrimaryColor}">
-    <Grid RowDefinitions="*, Auto"
-          ColumnDefinitions="*"
-          Padding="10">
-
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="MessengerMiniApp.Pages.ChatPage" Title="ChatPage" BackgroundColor="{DynamicResource PrimaryColor}">
+    <Grid RowDefinitions="*, Auto" ColumnDefinitions="*" Padding="10">
         <!-- Messages List -->
-        <CollectionView x:Name="MessagesCollectionView"
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        BackgroundColor="DarkSlateGrey"
-                        SelectionMode="None">
+        <CollectionView x:Name="MessagesCollectionView" Grid.Row="0" Grid.Column="0" BackgroundColor="DarkSlateGrey" SelectionMode="None">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <StackLayout Padding="10"
-                                 Orientation="Horizontal"
-                                 HorizontalOptions="StartAndExpand"
-                                 VerticalOptions="Center">
+                    <StackLayout Padding="10" Orientation="Horizontal" HorizontalOptions="StartAndExpand" VerticalOptions="Center">
                         <!-- Message Bubble -->
-                        <Frame CornerRadius="10"
-                               Padding="10"
-                               BackgroundColor="{DynamicResource MessageBubbleColor}"
-                               HasShadow="True">
-                            <Label Text="{Binding .}"
-                                   TextColor="White"
-                                   FontSize="16"/>
+                        <Frame CornerRadius="10" Padding="10" BackgroundColor="{DynamicResource MessageBubbleColor}" HasShadow="True">
+                            <Label Text="{Binding }" TextColor="White" FontSize="16"/>
                         </Frame>
                     </StackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <!-- Message Input and Send Button -->
-        <StackLayout Orientation="Horizontal"
-                     Grid.Row="1"
-                     Grid.Column="0"
-                     Padding="10"
-                     BackgroundColor="{DynamicResource SecondaryColor}">
-
+        <!-- Message Input and Buttons -->
+        <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Padding="10" BackgroundColor="{DynamicResource SecondaryColor}">
             <!-- Message Entry -->
-            <Entry x:Name="MessageEntry"
-                   Placeholder="Type a message"
-                   PlaceholderColor="LightGray"
-                   TextColor="White"
-                   BackgroundColor="{DynamicResource EntryBackgroundColor}"
-                   HorizontalOptions="FillAndExpand"
-                   Margin="0,0,10,0"/>
+            <Entry x:Name="MessageEntry" Placeholder="Type a message" PlaceholderColor="LightGray" TextColor="White" BackgroundColor="{DynamicResource EntryBackgroundColor}" HorizontalOptions="FillAndExpand" Margin="0,0,10,0">
+                <Entry.Triggers>
+                    <DataTrigger TargetType="Entry" Binding="{Binding Source={x:Reference MessageEntry}, Path=Text}" Value="">
+                        <Setter Property="Margin" Value="0,0,10,0"/>
+                    </DataTrigger>
+                </Entry.Triggers>
+            </Entry>
 
-            <!-- Send Button -->
-            <Button Text="Send"
-                    Clicked="OnSendClicked"
-                    BackgroundColor="{DynamicResource AccentColor}"
-                    TextColor="White"
-                    CornerRadius="10"
-                    Padding="10"/>
+            <!-- Voice Record Button (visible when entry is empty) -->
+            <Button x:Name="VoiceRecordButton" ImageSource="microphone.png" BackgroundColor="{DynamicResource AccentColor}" CornerRadius="10" Padding="15" Pressed="OnVoiceRecordPressed" Released="OnVoiceRecordReleased">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding Source={x:Reference MessageEntry}, Path=Text.Length}" Value="0">
+                        <Setter Property="IsVisible" Value="True"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="Button" Binding="{Binding Source={x:Reference MessageEntry}, Path=Text.Length}" Value="1">
+                        <Setter Property="IsVisible" Value="False"/>
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+
+            <!-- Send Message Button (visible when text is entered) -->
+            <Button x:Name="SendMessageButton" Text="Send" BackgroundColor="{DynamicResource AccentColor}" TextColor="White" CornerRadius="10" Padding="15" Clicked="OnSendClicked" IsVisible="False">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding Source={x:Reference MessageEntry}, Path=Text.Length}" Value="0">
+                        <Setter Property="IsVisible" Value="False"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="Button" Binding="{Binding Source={x:Reference MessageEntry}, Path=Text.Length}" Value="1">
+                        <Setter Property="IsVisible" Value="True"/>
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
         </StackLayout>
     </Grid>
 </ContentPage>

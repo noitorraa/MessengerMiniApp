@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MessengerMiniApp.Pages;
+using Microsoft.Extensions.Logging;
+using Plugin.Maui.Audio;
 
 namespace MessengerMiniApp
 {
@@ -7,16 +9,17 @@ namespace MessengerMiniApp
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
+            builder.UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.Services.AddSingleton(AudioManager.Current);
+            builder.Services.AddTransient<ChatPage>();
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();
