@@ -24,7 +24,7 @@
                     <SwipeView>
                         
                         <SwipeView.LeftItems>
-                            <SwipeItems>
+                            <SwipeItems Mode="Execute">
                                 <SwipeItem Text="Delete"
                                        BackgroundColor="Red"
                                        IconImageSource="delete_icon.png"

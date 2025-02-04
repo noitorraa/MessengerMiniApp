@@ -20,7 +20,7 @@ namespace MessengerMiniApp.Pages
 
         private ObservableCollection<string> _messages;
 
-        public ChatPage(int userId, int chatId, IAudioManager audioManager)
+        public ChatPage(int userId, int chatId)
         {
             InitializeComponent();
             //_audioManager = audioManager;
@@ -85,6 +85,16 @@ namespace MessengerMiniApp.Pages
             {
                 Console.WriteLine($"Ошибка подключения: {ex.Message}");
             }
+        }
+
+        private void OnVoiceRecordPressed(object sender, EventArgs e)
+        {
+
+        }
+
+        private void OnVoiceRecordReleased(object sender, EventArgs e)
+        {
+
         }
 
         //private async void OnVoiceRecordPressed(object sender, EventArgs e)
