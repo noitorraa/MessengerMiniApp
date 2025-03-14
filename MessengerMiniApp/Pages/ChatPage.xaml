@@ -21,7 +21,7 @@
                                Padding="10"
                                BackgroundColor="{DynamicResource MessageBubbleColor}"
                                HasShadow="True">
-                            <Label Text="{Binding .}"
+                            <Label Text="{Binding Content}"
                                    TextColor="White"
                                    FontSize="16"
                                    LineBreakMode="WordWrap"/>

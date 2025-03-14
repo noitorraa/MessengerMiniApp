@@ -34,13 +34,13 @@ namespace MessengerMiniApp.Pages
 
         private async void LoadMessages()
         {
-            var response = await _httpClient.GetAsync($"{ApiUrl}chats/{_chatId}/messages");
+            var response = await _httpClient.GetAsync($"{ApiUrl}chats/{_chatId}/{_userId}/messages");
             if (response.IsSuccessStatusCode)
             {
-                var messages = JsonConvert.DeserializeObject<List<string>>(await response.Content.ReadAsStringAsync());
+                var messages = JsonConvert.DeserializeObject<List<MessageDto>>(await response.Content.ReadAsStringAsync());
                 foreach (var message in messages)
                 {
-                    _messages.Add(message);
+                    _messages.Add(message.Content);
                 }
             }
         }
@@ -67,11 +67,11 @@ namespace MessengerMiniApp.Pages
             };
 
             // Подписка на получение сообщений
-            _hubConnection.On<string>("ReceiveMessage", (message) =>
+            _hubConnection.On<MessageDto>("ReceiveMessage", (message) =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    _messages.Add(message); // Добавление строки в коллекцию
+                    _messages.Add(message.Content); // Добавление строки в коллекцию
                 });
             });
 
@@ -201,5 +201,15 @@ namespace MessengerMiniApp.Pages
         //    _audioPlayer = _audioManager.CreatePlayer(await _httpClient.GetStreamAsync(fileUrl));
         //    _audioPlayer.Play();
         //}
+    }
+
+    public class MessageDto
+    {
+        [JsonProperty("content")]
+        public string Content { get; set; }
+        [JsonProperty("userID")]
+        public int UserID { get; set; } // Или UserId, если нужно
+        [JsonProperty("createdAt")]
+        public DateTime CreatedAt { get; set; }
     }
 }
