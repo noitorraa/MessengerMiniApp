@@ -1,0 +1,58 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\documents\\repos\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C7FD75DD-06F6-4F32-AF98-364F1550574E}|MessengerMiniApp\\MessengerMiniApp.csproj|d:\\documents\\repos\\messengerminiapp\\pages\\chatpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C7FD75DD-06F6-4F32-AF98-364F1550574E}|MessengerMiniApp\\MessengerMiniApp.csproj|solutionrelative:messengerminiapp\\pages\\chatpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C7FD75DD-06F6-4F32-AF98-364F1550574E}|MessengerMiniApp\\MessengerMiniApp.csproj|d:\\documents\\repos\\messengerminiapp\\pages\\chatpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C7FD75DD-06F6-4F32-AF98-364F1550574E}|MessengerMiniApp\\MessengerMiniApp.csproj|solutionrelative:messengerminiapp\\pages\\chatpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ChatPage.xaml",
+              "DocumentMoniker": "D:\\documents\\repos\\MessengerMiniApp\\Pages\\ChatPage.xaml",
+              "RelativeDocumentMoniker": "MessengerMiniApp\\Pages\\ChatPage.xaml",
+              "ToolTip": "D:\\documents\\repos\\MessengerMiniApp\\Pages\\ChatPage.xaml",
+              "RelativeToolTip": "MessengerMiniApp\\Pages\\ChatPage.xaml",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-03-17T11:18:46.771Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ChatPage.xaml.cs",
+              "DocumentMoniker": "D:\\documents\\repos\\MessengerMiniApp\\Pages\\ChatPage.xaml.cs",
+              "RelativeDocumentMoniker": "MessengerMiniApp\\Pages\\ChatPage.xaml.cs",
+              "ToolTip": "D:\\documents\\repos\\MessengerMiniApp\\Pages\\ChatPage.xaml.cs",
+              "RelativeToolTip": "MessengerMiniApp\\Pages\\ChatPage.xaml.cs",
+              "ViewState": "AgIAAEEAAAAAAAAAAAAcwJ8AAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-15T09:14:37.249Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

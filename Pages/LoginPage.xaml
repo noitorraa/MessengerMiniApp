@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MessengerMiniApp.Pages.LoginPage"
+             Title="LoginPage"
+             BackgroundColor="{DynamicResource PrimaryColor}">
+    <ContentPage.Content>
+        <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, *"
+          ColumnDefinitions="*"
+          Padding="20"
+          RowSpacing="15"
+          VerticalOptions="CenterAndExpand">
+
+            <!-- Logo or App Name -->
+            <Image Source="loginicon.png"
+               
+               Grid.Row="0"
+               Grid.Column="0"
+               HorizontalOptions="Center"
+               WidthRequest="300"
+               HeightRequest="300"
+               Margin="0,20,0,0"/>
+
+            <!-- Login Entry -->
+            <Frame CornerRadius="10"
+               Padding="10"
+               BackgroundColor="{DynamicResource SecondaryColor}"
+               Grid.Row="1"
+               Grid.Column="0">
+                <Entry x:Name="LoginEntry"
+                   Placeholder="Login"
+                   PlaceholderColor="LightGray"
+                   TextColor="White"
+                   BackgroundColor="Transparent"/>
+            </Frame>
+
+            <!-- Password Entry -->
+            <Frame CornerRadius="10"
+               Padding="10"
+               BackgroundColor="{DynamicResource SecondaryColor}"
+               Grid.Row="2"
+               Grid.Column="0">
+                <Entry x:Name="PasswordEntry"
+                   Placeholder="Password"
+                   IsPassword="True"
+                   PlaceholderColor="LightGray"
+                   TextColor="White"
+                   BackgroundColor="Transparent"/>
+            </Frame>
+
+            <!-- Login Button -->
+            <Button Text="Войти"
+                Clicked="OnLoginClicked"
+                BackgroundColor="{DynamicResource AccentColor}"
+                TextColor="White"
+                CornerRadius="10"
+                Padding="10"
+                Grid.Row="3"
+                Grid.Column="0"/>
+
+            <!-- Register Button -->
+            <Button Text="Зарегистрироваться"
+                Clicked="OnRegisterClicked"
+                BackgroundColor="Transparent"
+                TextColor="{DynamicResource AccentColor}"
+                BorderColor="{DynamicResource AccentColor}"
+                BorderWidth="2"
+                CornerRadius="10"
+                Padding="10"
+                Grid.Row="4"
+                Grid.Column="0"/>
+
+            <!-- Forgot Password -->
+            <!--<Label Text="Забыли пароль?"
+               TextColor="{DynamicResource AccentColor}"
+               HorizontalOptions="Center"
+               Grid.Row="5"
+               Grid.Column="0"
+               GestureRecognizers="{TapGestureRecognizer OnForgotPasswordTapped}"/>-->
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
