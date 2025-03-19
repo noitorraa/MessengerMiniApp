@@ -31219,11 +31219,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\documents\\repos\\MessengerMiniApp\\MessengerMiniApp.csproj",
+      "projectUniqueName": "D:\\documents\\repos\\MessengerClient\\MessengerMiniApp\\MessengerMiniApp.csproj",
       "projectName": "MessengerMiniApp",
-      "projectPath": "D:\\documents\\repos\\MessengerMiniApp\\MessengerMiniApp.csproj",
+      "projectPath": "D:\\documents\\repos\\MessengerClient\\MessengerMiniApp\\MessengerMiniApp.csproj",
       "packagesPath": "C:\\Users\\ivank\\.nuget\\packages\\",
-      "outputPath": "D:\\documents\\repos\\MessengerMiniApp\\obj\\",
+      "outputPath": "D:\\documents\\repos\\MessengerClient\\MessengerMiniApp\\obj\\",
       "projectStyle": "PackageReference",
       "crossTargeting": true,
       "fallbackFolders": [

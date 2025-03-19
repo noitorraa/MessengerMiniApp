@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "TNVIADBRKoo=",
+  "dgSpecHash": "aNbxmFa86ys=",
   "success": true,
-  "projectFilePath": "D:\\documents\\repos\\MessengerMiniApp\\MessengerMiniApp.csproj",
+  "projectFilePath": "D:\\documents\\repos\\MessengerClient\\MessengerMiniApp\\MessengerMiniApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ivank\\.nuget\\packages\\googlegson\\2.11.0.3\\googlegson.2.11.0.3.nupkg.sha512",
     "C:\\Users\\ivank\\.nuget\\packages\\microsoft.aspnetcore.connections.abstractions\\9.0.1\\microsoft.aspnetcore.connections.abstractions.9.0.1.nupkg.sha512",
