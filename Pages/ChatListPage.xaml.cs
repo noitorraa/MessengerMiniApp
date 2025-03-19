@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
-using MessengerServer.Model;
+using MessengerServer.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;

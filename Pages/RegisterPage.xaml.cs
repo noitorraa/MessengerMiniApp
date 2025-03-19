@@ -1,5 +1,5 @@
 namespace MessengerMiniApp.Pages;
-using MessengerServer.Model;
+using MessengerServer.Models;
 using Newtonsoft.Json;
 using System.Text;
 

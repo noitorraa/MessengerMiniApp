@@ -24,6 +24,8 @@ namespace MessengerMiniApp.Pages
             _chatId = chatId;
             _messages = new ObservableCollection<MessageDto>();
             MessagesCollectionView.ItemsSource = _messages;
+            var fileTypeToVisibilityConverter = new FileTypeToVisibilityConverter();
+            var nullToVisibilityConverter = new NullToVisibilityConverter();
             var statusToColorConverter = new StatusToColorConverter();
             var statusToTextConverter = new StatusToTextConverter();
             var isCurrentUserConverter = new IsCurrentUserConverter { CurrentUserId = _userId };
@@ -34,6 +36,8 @@ namespace MessengerMiniApp.Pages
             Resources.Add("IsCurrentUserConverter", isCurrentUserConverter);
             Resources.Add("IsOutgoingMessageConverter", isOutgoingMessageConverter);
             Resources.Add("UserIdToColorConverter", userIdToColorConverter);
+            Resources.Add("NullToVisibilityConverter", nullToVisibilityConverter);
+            Resources.Add("FileTypeToVisibilityConverter", fileTypeToVisibilityConverter);
             BindingContext = this;
             LoadMessages();
 
@@ -74,7 +78,7 @@ namespace MessengerMiniApp.Pages
         {
             if (!string.IsNullOrEmpty(MessageEntry.Text))
             {
-                await _hubConnection.InvokeAsync("SendMessage", _userId, MessageEntry.Text, _chatId);
+                await _hubConnection.InvokeAsync("SendMessage", _userId, MessageEntry.Text, _chatId, null);
                 MessageEntry.Text = string.Empty;
             }
         }
@@ -92,17 +96,41 @@ namespace MessengerMiniApp.Pages
             };
 
             // Подписка на получение сообщений
-            _hubConnection.On<string, int, int>("ReceiveMessage", (content, senderId, messageId) =>
+            _hubConnection.On<string, int, int, int?, string, string>(
+            "ReceiveMessage",
+            (content, senderId, messageId, fileId, fileType, fileUrl) =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     _messages.Add(new MessageDto
                     {
-                        MessageId = messageId, // Сохраняем MessageId
+                        MessageId = messageId,
                         Content = content,
                         UserID = senderId,
                         CreatedAt = DateTime.UtcNow,
-                        IsRead = senderId != _userId // Для отправителя статус "прочитано"
+                        IsRead = senderId == _userId,
+                        FileId = fileId,
+                        FileType = fileType,
+                        FileUrl = fileUrl
+                    });
+                });
+            });
+
+            _hubConnection.On<int, int, int, string, string>(
+            "ReceiveFileMessage",
+            (senderId, messageId, fileId, fileType, fileUrl) =>
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    _messages.Add(new MessageDto
+                    {
+                        MessageId = messageId,
+                        UserID = senderId,
+                        FileId = fileId,
+                        FileType = fileType,
+                        FileUrl = fileUrl,
+                        CreatedAt = DateTime.UtcNow,
+                        IsRead = senderId == _userId
                     });
                 });
             });
@@ -135,9 +163,38 @@ namespace MessengerMiniApp.Pages
             }
         }
 
-        private void OnAttachClicked(object sender, EventArgs e) // прикрепить файл
+        private async void OnAttachClicked(object sender, EventArgs e)
         {
+            try
+            {
+                var fileResult = await FilePicker.Default.PickAsync();
+                if (fileResult == null) return;
 
+                // Исправленный URL для загрузки
+                var content = new MultipartFormDataContent();
+                content.Add(new StreamContent(await fileResult.OpenReadAsync()), "file", fileResult.FileName);
+
+                var response = await _httpClient.PostAsync(
+                    $"{ApiUrl}files/upload/{_chatId}/{_userId}", // Добавлен базовый URL
+                    content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = JsonConvert.DeserializeAnonymousType(
+                        await response.Content.ReadAsStringAsync(),
+                        new { fileId = 0, url = "", fileType = "" } // Добавлен fileType
+                    );
+
+                    await _hubConnection.InvokeAsync("SendFileMessage",
+                        _userId,
+                        result.fileId,
+                        _chatId);
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Ошибка", ex.Message, "OK");
+            }
         }
     }
 
@@ -166,6 +223,15 @@ namespace MessengerMiniApp.Pages
                 OnPropertyChanged();
             }
         }
+        [JsonProperty("fileId")]
+        public int? FileId { get; set; }
+
+        [JsonProperty("fileType")]
+        public string FileType { get; set; }
+
+        [JsonProperty("fileUrl")]
+        public string FileUrl { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

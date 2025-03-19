@@ -1,4 +1,4 @@
-using MessengerServer.Model;
+using MessengerServer.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 

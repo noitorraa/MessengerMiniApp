@@ -4,7 +4,7 @@
              BackgroundColor="{DynamicResource PrimaryColor}"
              Title="ChatListPage">
     <StackLayout Padding="10">
-        <!-- Search Bar -->
+
         <SearchBar x:Name="searchBar"
                    Placeholder="Search"
                    BackgroundColor="{DynamicResource SecondaryColor}"
@@ -14,7 +14,6 @@
                    Margin="10,0,10,0"
                    SearchButtonPressed="OnSearchButtonPressed"/>
 
-        <!-- ListView for Chat List -->
         <CollectionView x:Name="chatListView"
                     BackgroundColor="Transparent"
                     SelectionMode="Single"

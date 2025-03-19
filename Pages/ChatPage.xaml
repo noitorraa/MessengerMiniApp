@@ -6,35 +6,63 @@
              Title="Chat"
              BackgroundColor="{DynamicResource PrimaryColor}">
 
-    
-
     <Grid RowDefinitions="*, Auto" ColumnDefinitions="*" Padding="10">
-        <CollectionView x:Name="MessagesCollectionView" Grid.Row="0" Grid.Column="0" BackgroundColor="DarkSlateGrey" SelectionMode="None">
+        <CollectionView x:Name="MessagesCollectionView" Grid.Row="0" Grid.Column="0" 
+                        BackgroundColor="DarkSlateGrey" SelectionMode="None">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <StackLayout Padding="10" Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="Start">
+                    <StackLayout Padding="10" Orientation="Horizontal" 
+                                 VerticalOptions="Center" 
+                                 HorizontalOptions="Start">
                         <StackLayout.Triggers>
-                            <DataTrigger TargetType="StackLayout" Binding="{Binding UserID, Converter={StaticResource IsCurrentUserConverter}}" Value="True">
+                            <DataTrigger TargetType="StackLayout" 
+                                         Binding="{Binding UserID, Converter={StaticResource IsCurrentUserConverter}}" 
+                                         Value="True">
                                 <Setter Property="HorizontalOptions" Value="End" />
                             </DataTrigger>
                         </StackLayout.Triggers>
 
-                        <Frame CornerRadius="10" Padding="10" HasShadow="True" BackgroundColor="{Binding UserID, Converter={StaticResource UserIdToColorConverter}}" MaximumWidthRequest="250">
+                        <Frame CornerRadius="10" Padding="10" HasShadow="True" 
+                               BackgroundColor="{Binding UserID, Converter={StaticResource UserIdToColorConverter}}" 
+                               MaximumWidthRequest="250">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <Label Grid.Row="0" Text="{Binding Content}" TextColor="White" FontSize="16" LineBreakMode="WordWrap"/>
+                                <Label Grid.Row="0" 
+                                       Text="{Binding Content}" 
+                                       TextColor="White" 
+                                       FontSize="16" 
+                                       LineBreakMode="WordWrap"
+                                       IsVisible="{Binding FileId, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Inverse}"/>
 
-                                <StackLayout Grid.Row="1" Orientation="Horizontal" HorizontalOptions="End" Spacing="5">
-                                    <Label Text="{Binding CreatedAt, StringFormat='{0:HH:mm}'}" TextColor="LightGray" FontSize="12"/>
+                                <StackLayout Grid.Row="0" 
+                                       IsVisible="{Binding FileId, Converter={StaticResource NullToVisibilityConverter}}">
+                                                                <Image Source="{Binding FileUrl}"
+                                       IsVisible="{Binding FileType, Converter={StaticResource FileTypeToVisibilityConverter}, ConverterParameter=image}"
+                                       HeightRequest="200"
+                                       Aspect="AspectFit"/>
+
+                                                                <Label Text="Скачать файл"
+                                       IsVisible="{Binding FileType, Converter={StaticResource FileTypeToVisibilityConverter}, ConverterParameter=other}"
+                                       GestureRecognizers="{StaticResource DownloadGesture}"/>
+                                </StackLayout>
+
+                                <StackLayout Grid.Row="1" 
+                                             Orientation="Horizontal" 
+                                             HorizontalOptions="End" 
+                                             Spacing="5">
+                                    <Label Text="{Binding CreatedAt, StringFormat='{0:HH:mm}'}" 
+                                           TextColor="LightGray" 
+                                           FontSize="12"/>
 
                                     <Label Text="{Binding IsRead, Converter={StaticResource StatusToTextConverter}}"
-                                   FontSize="Small"
-                                   TextColor="{Binding IsRead, Converter={StaticResource StatusToColorConverter}}"
-                                   IsVisible="{Binding UserID, Converter={StaticResource IsOutgoingMessageConverter}}"/>
+                                           FontSize="Small"
+                                           TextColor="{Binding IsRead, Converter={StaticResource StatusToColorConverter}}"
+                                           IsVisible="{Binding UserID, Converter={StaticResource IsOutgoingMessageConverter}}"/>
                                 </StackLayout>
                             </Grid>
                         </Frame>
@@ -43,10 +71,28 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Padding="10" BackgroundColor="{DynamicResource SecondaryColor}">
-            <Button Text="📎" Clicked="OnAttachClicked" BackgroundColor="Transparent" TextColor="White" FontSize="24" Padding="10"/>
-            <Entry x:Name="MessageEntry" Placeholder="Type a message" PlaceholderColor="LightGray" TextColor="White" BackgroundColor="{DynamicResource EntryBackgroundColor}" HorizontalOptions="FillAndExpand" Margin="10,0"/>
-            <Button Text="Send" Clicked="OnSendClicked" BackgroundColor="{DynamicResource AccentColor}" TextColor="White" CornerRadius="10" Padding="10"/>
+        <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="0" 
+                     Padding="10" 
+                     BackgroundColor="{DynamicResource SecondaryColor}">
+            <Button Text="📎" 
+                    Clicked="OnAttachClicked" 
+                    BackgroundColor="Transparent" 
+                    TextColor="White" 
+                    FontSize="24" 
+                    Padding="10"/>
+            <Entry x:Name="MessageEntry" 
+                   Placeholder="Type a message" 
+                   PlaceholderColor="LightGray" 
+                   TextColor="White" 
+                   BackgroundColor="{DynamicResource EntryBackgroundColor}" 
+                   HorizontalOptions="FillAndExpand" 
+                   Margin="10,0"/>
+            <Button Text="Send" 
+                    Clicked="OnSendClicked" 
+                    BackgroundColor="{DynamicResource AccentColor}" 
+                    TextColor="White" 
+                    CornerRadius="10" 
+                    Padding="10"/>
         </StackLayout>
     </Grid>
 </ContentPage>
