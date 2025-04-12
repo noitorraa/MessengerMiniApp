@@ -16,7 +16,7 @@ namespace MessengerMiniApp
         public SignalRService()
         {
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl("https://noitorraa-messengerserver-ba27.twc1.net/chatHub")
+                .WithUrl("https://noitorraa-messengerserver-f42a.twc1.net/chatHub")
                 .Build();
 
             _hubConnection.On("NotifyUpdateChatList", () =>

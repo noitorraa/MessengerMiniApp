@@ -48,7 +48,7 @@ public partial class SearchResultsPage : ContentPage
     {
         var httpClient = new HttpClient();
         var chatContent = new StringContent(JsonConvert.SerializeObject(chatRequest), Encoding.UTF8, "application/json");
-        var response = await httpClient.PostAsync($"https://noitorraa-messengerserver-ba27.twc1.net/api/users/chats", chatContent);
+        var response = await httpClient.PostAsync($"https://noitorraa-messengerserver-f42a.twc1.net/api/users/chats", chatContent);
         if (response.IsSuccessStatusCode)
         {
             var createdChat = JsonConvert.DeserializeObject<Chat>(await response.Content.ReadAsStringAsync());

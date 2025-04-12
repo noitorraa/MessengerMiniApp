@@ -4,14 +4,16 @@ using Plugin.Maui.Audio;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 namespace MessengerMiniApp.Pages
 {
     public partial class ChatPage : ContentPage
     {
+        public ICommand DownloadFileCommand { get; }
         private HubConnection _hubConnection;
         private readonly HttpClient _httpClient = new HttpClient();
-        private const string ApiUrl = "https://noitorraa-messengerserver-ba27.twc1.net/api/users/";
+        private const string ApiUrl = "https://noitorraa-messengerserver-f42a.twc1.net/api/users/";
         private readonly int _userId;
         public int CurrentUserId => _userId;
         private readonly int _chatId;
@@ -20,11 +22,11 @@ namespace MessengerMiniApp.Pages
         public ChatPage(int userId, int chatId)
         {
             InitializeComponent();
+            DownloadFileCommand = new Command<string>(DownloadFile);
             _userId = userId;
             _chatId = chatId;
             _messages = new ObservableCollection<MessageDto>();
             MessagesCollectionView.ItemsSource = _messages;
-            var fileTypeToVisibilityConverter = new FileTypeToVisibilityConverter();
             var nullToVisibilityConverter = new NullToVisibilityConverter();
             var statusToColorConverter = new StatusToColorConverter();
             var statusToTextConverter = new StatusToTextConverter();
@@ -37,25 +39,27 @@ namespace MessengerMiniApp.Pages
             Resources.Add("IsOutgoingMessageConverter", isOutgoingMessageConverter);
             Resources.Add("UserIdToColorConverter", userIdToColorConverter);
             Resources.Add("NullToVisibilityConverter", nullToVisibilityConverter);
-            Resources.Add("FileTypeToVisibilityConverter", fileTypeToVisibilityConverter);
             BindingContext = this;
             LoadMessages();
 
             _ = ConnectToSignalR(); // Используем дискорд для асинхронного вызова (await нельзя потому что метод не асинхронный)
         }
 
-        private async Task MarkMessagesAsRead()
+        private async void DownloadFile(string fileUrl)
         {
-            var unreadMessages = _messages
-                .Where(m => !m.IsRead && m.UserID != _userId)
-                .ToList();
+            if (string.IsNullOrEmpty(fileUrl)) return;
 
-            if (unreadMessages.Any())
+            try
             {
-                var messageIds = unreadMessages.Select(m => m.MessageId).ToList();
-                await _hubConnection.InvokeAsync("UpdateMessageStatusBatch", messageIds, _userId);
+                // Открываем файл в браузере или скачиваем
+                await Launcher.OpenAsync(new Uri(fileUrl));
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Ошибка", $"Не удалось скачать файл: {ex.Message}", "OK");
             }
         }
+
 
         private async void LoadMessages()
         {
@@ -65,14 +69,14 @@ namespace MessengerMiniApp.Pages
                 var messages = JsonConvert.DeserializeObject<List<MessageDto>>(
                     await response.Content.ReadAsStringAsync()
                 );
+                _messages.Clear();
                 foreach (var message in messages)
                 {
-                    Console.WriteLine($"Сообщение ID: {message.MessageId}, IsRead: {message.IsRead}, UserID: {message.UserID}");
-                    _messages.Add(message); // IsRead уже приходит с сервера
+                    _messages.Add(message);
                 }
-                await MarkMessagesAsRead(); // Обновляем статус сообщений, когда они загружены
             }
         }
+
 
         private async void OnSendClicked(object sender, EventArgs e)
         {
@@ -83,10 +87,11 @@ namespace MessengerMiniApp.Pages
             }
         }
 
+
         private async Task ConnectToSignalR()
         {
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl("https://noitorraa-messengerserver-ba27.twc1.net/chatHub")
+                .WithUrl("https://noitorraa-messengerserver-f42a.twc1.net/chatHub")
                 .Build();
 
             _hubConnection.Closed += async (error) =>
@@ -96,57 +101,34 @@ namespace MessengerMiniApp.Pages
             };
 
             // Подписка на получение сообщений
-            _hubConnection.On<string, int, int, int?, string, string>(
-            "ReceiveMessage",
-            (content, senderId, messageId, fileId, fileType, fileUrl) =>
+            _hubConnection.On<MessageDto>("ReceiveMessage", (messageDto) =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    _messages.Add(new MessageDto
+                    if (messageDto.FileUrl != null)
                     {
-                        MessageId = messageId,
-                        Content = content,
-                        UserID = senderId,
-                        CreatedAt = DateTime.UtcNow,
-                        IsRead = senderId == _userId,
-                        FileId = fileId,
-                        FileType = fileType,
-                        FileUrl = fileUrl
-                    });
-                });
-            });
-
-            _hubConnection.On<int, int, int, string, string>(
-            "ReceiveFileMessage",
-            (senderId, messageId, fileId, fileType, fileUrl) =>
-            {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    _messages.Add(new MessageDto
-                    {
-                        MessageId = messageId,
-                        UserID = senderId,
-                        FileId = fileId,
-                        FileType = fileType,
-                        FileUrl = fileUrl,
-                        CreatedAt = DateTime.UtcNow,
-                        IsRead = senderId == _userId
-                    });
-                });
-            });
-
-            _hubConnection.On<List<int>, int>("ReceiveMessageStatusUpdate", (messageIds, userId) =>
-            {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    foreach (var messageId in messageIds)
-                    {
-                        var message = _messages.FirstOrDefault(m => m.MessageId == messageId);
-                        if (message != null && message.UserID != userId)
-                        {
-                            message.IsRead = true; // Обновляем статус сообщения как прочитанное
-                        }
+                        messageDto.Content = $"[Файл: {Path.GetFileName(messageDto.FileUrl)}]";
                     }
+                    _messages.Add(messageDto);
+                });
+            });
+
+            _hubConnection.On<int, int>("UpdateMessageStatus", (messageId, status) =>
+            {
+                var message = _messages.FirstOrDefault(m => m.MessageId == messageId);
+                if (message != null)
+                {
+                    message.Status = status;
+                }
+            });
+
+            _hubConnection.On("RefreshMessages", () =>
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    // Перезагрузить сообщения или обновить конкретные статусы
+                    Console.WriteLine("Перезагружаем страницу");
+                    LoadMessages();
                 });
             });
 
@@ -155,7 +137,8 @@ namespace MessengerMiniApp.Pages
                 await _hubConnection.StartAsync();
                 await _hubConnection.InvokeAsync("JoinChat", _chatId); // Вход в группу
                 Console.WriteLine("Успешное подключение к чату");
-                await MarkMessagesAsRead();
+                Console.WriteLine("Отмечаем сообщения как прочитанные");
+                await _hubConnection.InvokeAsync("MarkMessagesAsRead", _chatId, _userId);
             }
             catch (Exception ex)
             {
@@ -165,35 +148,31 @@ namespace MessengerMiniApp.Pages
 
         private async void OnAttachClicked(object sender, EventArgs e)
         {
-            try
+            var fileResult = await FilePicker.Default.PickAsync();
+            if (fileResult == null) return;
+
+            using var stream = await fileResult.OpenReadAsync();
+            var content = new MultipartFormDataContent();
+            content.Add(new StreamContent(stream), "file", fileResult.FileName);
+
+            var response = await _httpClient.PostAsync(
+                $"{ApiUrl}upload/{_chatId}/{_userId}",
+                content);
+
+            if (response.IsSuccessStatusCode)
             {
-                var fileResult = await FilePicker.Default.PickAsync();
-                if (fileResult == null) return;
+                var result = JsonConvert.DeserializeAnonymousType(
+                    await response.Content.ReadAsStringAsync(),
+                    new { fileId = 0, url = "" });
 
-                // Исправленный URL для загрузки
-                var content = new MultipartFormDataContent();
-                content.Add(new StreamContent(await fileResult.OpenReadAsync()), "file", fileResult.FileName);
-
-                var response = await _httpClient.PostAsync(
-                    $"{ApiUrl}files/upload/{_chatId}/{_userId}", // Добавлен базовый URL
-                    content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var result = JsonConvert.DeserializeAnonymousType(
-                        await response.Content.ReadAsStringAsync(),
-                        new { fileId = 0, url = "", fileType = "" } // Добавлен fileType
-                    );
-
-                    await _hubConnection.InvokeAsync("SendFileMessage",
-                        _userId,
-                        result.fileId,
-                        _chatId);
-                }
+                await _hubConnection.InvokeAsync("SendFileMessage",
+                    _userId,
+                    result.fileId,
+                    _chatId);
             }
-            catch (Exception ex)
+            else
             {
-                await DisplayAlert("Ошибка", ex.Message, "OK");
+                await DisplayAlert("Ошибка", "Не удалось загрузить файл", "OK");
             }
         }
     }
@@ -211,27 +190,29 @@ namespace MessengerMiniApp.Pages
 
         [JsonProperty("createdAt")]
         public DateTime CreatedAt { get; set; }
-
-        private bool _isRead;
-        [JsonProperty("isRead")]
-        public bool IsRead
-        {
-            get => _isRead;
-            set
-            {
-                _isRead = value;
-                OnPropertyChanged();
-            }
-        }
         [JsonProperty("fileId")]
         public int? FileId { get; set; }
 
         [JsonProperty("fileType")]
-        public string FileType { get; set; }
+        public string? FileType { get; set; }
 
         [JsonProperty("fileUrl")]
-        public string FileUrl { get; set; }
+        public string? FileUrl { get; set; }
+        private int _status;
 
+        [JsonProperty("status")]
+        public int Status
+        {
+            get => _status;
+            set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(); // Важно: вызывает обновление UI
+                }
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

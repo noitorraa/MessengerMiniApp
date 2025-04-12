@@ -5,11 +5,11 @@ namespace MessengerServer.Models;
 
 public partial class File
 {
-    public int FileId { get; set; }
+    public int? FileId { get; set; }
 
-    public string FileUrl { get; set; } = null!;
+    public string? FileUrl { get; set; } = null!;
 
-    public string FileType { get; set; } = null!;
+    public string? FileType { get; set; } = null!;
 
     public long Size { get; set; }
 

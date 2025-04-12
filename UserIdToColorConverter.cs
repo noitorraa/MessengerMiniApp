@@ -16,14 +16,13 @@ namespace MessengerMiniApp
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int userId)
+            return (int)value switch
             {
-                // Если сообщение отправлено текущим пользователем – один цвет, иначе – другой.
-                return userId == CurrentUserId
-                    ? Color.FromRgb(39, 167, 231)// Например, для своих сообщений
-                    : Color.FromRgb(69, 89, 99);         // Для сообщений собеседника
-            }
-            return Color.FromRgb(244, 240, 246);
+                0 => Colors.Gray,    // Sent
+                1 => Colors.Blue,    // Delivered
+                2 => Colors.Green,   // Read
+                _ => Colors.Gray
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

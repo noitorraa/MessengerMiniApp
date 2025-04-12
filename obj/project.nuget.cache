@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "aNbxmFa86ys=",
+  "dgSpecHash": "FlOGfuaV0jg=",
   "success": true,
   "projectFilePath": "D:\\documents\\repos\\MessengerClient\\MessengerMiniApp\\MessengerMiniApp.csproj",
   "expectedPackageFiles": [
@@ -132,7 +132,11 @@
     "C:\\Users\\ivank\\.nuget\\packages\\xamarin.kotlinx.coroutines.core.jvm\\1.8.1.3\\xamarin.kotlinx.coroutines.core.jvm.1.8.1.3.nupkg.sha512",
     "C:\\Users\\ivank\\.nuget\\packages\\xamarin.kotlinx.serialization.core\\1.7.1.3\\xamarin.kotlinx.serialization.core.1.7.1.3.nupkg.sha512",
     "C:\\Users\\ivank\\.nuget\\packages\\xamarin.kotlinx.serialization.core.jvm\\1.7.1.3\\xamarin.kotlinx.serialization.core.jvm.1.7.1.3.nupkg.sha512",
-    "C:\\Users\\ivank\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.19041.57\\microsoft.windows.sdk.net.ref.10.0.19041.57.nupkg.sha512"
+    "C:\\Users\\ivank\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\9.0.1\\microsoft.netcore.app.crossgen2.win-x64.9.0.1.nupkg.sha512",
+    "C:\\Users\\ivank\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.19041.57\\microsoft.windows.sdk.net.ref.10.0.19041.57.nupkg.sha512",
+    "C:\\Users\\ivank\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\9.0.1\\microsoft.aspnetcore.app.runtime.win-x64.9.0.1.nupkg.sha512",
+    "C:\\Users\\ivank\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\9.0.1\\microsoft.windowsdesktop.app.runtime.win-x64.9.0.1.nupkg.sha512",
+    "C:\\Users\\ivank\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\9.0.1\\microsoft.netcore.app.runtime.win-x64.9.0.1.nupkg.sha512"
   ],
   "logs": []
 }

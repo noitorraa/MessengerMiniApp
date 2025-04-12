@@ -2,29 +2,25 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MessengerMiniApp.Pages.RegisterPage"
-             Title="RegisterPage"
+             Title="Регистрация"
              BackgroundColor="{DynamicResource PrimaryColor}">
-    <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, *"
+    <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, *"
           ColumnDefinitions="*"
           Padding="20"
           RowSpacing="15"
           VerticalOptions="CenterAndExpand">
 
-        <!-- Logo or App Name -->
         <Image Source="app_logo.png"
                Grid.Row="0"
-               Grid.Column="0"
                HorizontalOptions="Center"
                WidthRequest="100"
                HeightRequest="100"
                Margin="0,20,0,0"/>
 
-        <!-- Username Entry -->
         <Frame CornerRadius="10"
                Padding="10"
                BackgroundColor="{DynamicResource SecondaryColor}"
-               Grid.Row="1"
-               Grid.Column="0">
+               Grid.Row="1">
             <Entry x:Name="UsernameEntry"
                    Placeholder="Login"
                    PlaceholderColor="LightGray"
@@ -32,12 +28,14 @@
                    BackgroundColor="Transparent"/>
         </Frame>
 
-        <!-- Password Entry -->
+        <Frame CornerRadius="10" Padding="10" BackgroundColor="{DynamicResource SecondaryColor}" Grid.Row="2">
+            <Entry x:Name="PhoneEntry" Placeholder="+7XXXXXXXXXX" Keyboard="Telephone"/>
+        </Frame>
+
         <Frame CornerRadius="10"
                Padding="10"
                BackgroundColor="{DynamicResource SecondaryColor}"
-               Grid.Row="2"
-               Grid.Column="0">
+               Grid.Row="3">
             <Entry x:Name="PasswordEntry"
                    Placeholder="Password"
                    IsPassword="True"
@@ -46,12 +44,10 @@
                    BackgroundColor="Transparent"/>
         </Frame>
 
-        <!-- Confirm Password Entry -->
         <Frame CornerRadius="10"
                Padding="10"
                BackgroundColor="{DynamicResource SecondaryColor}"
-               Grid.Row="3"
-               Grid.Column="0">
+               Grid.Row="4">
             <Entry x:Name="ConfirmPasswordEntry"
                    Placeholder="Confirm Password"
                    IsPassword="True"
@@ -60,22 +56,35 @@
                    BackgroundColor="Transparent"/>
         </Frame>
 
-        <!-- Register Button -->
+        <Grid Grid.Row="5" ColumnDefinitions="*, Auto" Margin="0,10">
+            <Entry x:Name="CodeEntry" 
+                   Placeholder="SMS code"
+                   Grid.Column="0"
+                   Margin="0,0,10,0"/>
+            <Button Text="Подтвердить"
+                    x:Name="ConfirmBtn"
+                    Clicked="ConfirmRegistrationClicked"
+                    Grid.Column="1"
+                    BackgroundColor="{DynamicResource AccentColor}"
+                    TextColor="White"
+                    CornerRadius="10"
+                    Padding="20,10"/>
+        </Grid>
+
+        <Button Text="Отправить код"
+                Clicked="OnSendCodeClicked"
+                BackgroundColor="{DynamicResource AccentColor}"
+                TextColor="White"
+                CornerRadius="10"
+                Padding="10"
+                Grid.Row="6"/>
+
         <Button Text="Зарегистрироваться"
                 Clicked="OnRegisterClicked"
                 BackgroundColor="{DynamicResource AccentColor}"
                 TextColor="White"
                 CornerRadius="10"
                 Padding="10"
-                Grid.Row="4"
-                Grid.Column="0"/>
-
-        <!-- Login Link -->
-        <!--<Label Text="Уже есть аккаунт? Войти"
-               TextColor="{DynamicResource AccentColor}"
-               HorizontalOptions="Center"
-               Grid.Row="5"
-               Grid.Column="0"
-               GestureRecognizers="{TapGestureRecognizer OnLoginTapped}"/>-->
+                Grid.Row="7"/>
     </Grid>
 </ContentPage>

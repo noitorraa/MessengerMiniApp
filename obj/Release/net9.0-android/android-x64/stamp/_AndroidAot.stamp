@@ -58,7 +58,6 @@ obj\Release\net9.0-android\android-x64\aot\System.Collections.Concurrent.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.Collections.NonGeneric.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.Collections.Specialized.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.Collections.dll.so
-obj\Release\net9.0-android\android-x64\aot\System.ComponentModel.Annotations.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.ComponentModel.Primitives.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.ComponentModel.TypeConverter.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.ComponentModel.dll.so
@@ -75,6 +74,7 @@ obj\Release\net9.0-android\android-x64\aot\System.IO.Pipelines.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.Linq.Expressions.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.Linq.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.Memory.dll.so
+obj\Release\net9.0-android\android-x64\aot\System.Net.Http.Json.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.Net.Http.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.Net.NameResolution.dll.so
 obj\Release\net9.0-android\android-x64\aot\System.Net.NetworkInformation.dll.so

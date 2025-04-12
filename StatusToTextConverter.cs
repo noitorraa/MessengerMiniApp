@@ -11,9 +11,22 @@ namespace MessengerMiniApp
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool isRead)
-                return isRead ? "✓" : "🔒"; // Зеленая галочка для прочитанных сообщений, замок для непрочитанных
-            return "🔒"; // По умолчанию — замок
+            Console.WriteLine($"Получено значение статуса: {value} (тип: {value?.GetType()})");
+
+            if (value is int status)
+            {
+                return status switch
+                {
+                    0 => "✓",      // Sent
+                    1 => "✓✓",     // Delivered
+                    2 => "✓✓✓",    // Read
+                    _ => "✓"       // Fallback
+                };
+            }
+
+            // Логирование ошибки
+            Console.WriteLine($"Некорректный тип данных: {value?.GetType()}");
+            return "✓";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -21,5 +34,4 @@ namespace MessengerMiniApp
             throw new NotImplementedException();
         }
     }
-
 }

@@ -1,1 +1,1 @@
-D:\documents\repos\MessengerMiniApp\MessengerMiniApp.csproj;x64
+D:\documents\repos\MessengerClient\MessengerMiniApp\MessengerMiniApp.csproj;x64

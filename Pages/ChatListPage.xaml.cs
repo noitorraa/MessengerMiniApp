@@ -11,7 +11,7 @@ namespace MessengerMiniApp.Pages
     {
         private HubConnection _hubConnection;
         private readonly HttpClient _httpClient = new HttpClient();
-        private const string ApiUrl = "https://noitorraa-messengerserver-ba27.twc1.net/api/users/";
+        private const string ApiUrl = "https://noitorraa-messengerserver-f42a.twc1.net/api/users/";
         private readonly int _userId;
         private ObservableCollection<ChatDto> _chats;
 
@@ -92,7 +92,7 @@ namespace MessengerMiniApp.Pages
         private async Task ConnectToSignalR()
         {
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl("https://noitorraa-messengerserver-ba27.twc1.net/chatHub")
+                .WithUrl("https://noitorraa-messengerserver-f42a.twc1.net/chatHub")
                 .Build();
 
             _hubConnection.Closed += async (error) =>

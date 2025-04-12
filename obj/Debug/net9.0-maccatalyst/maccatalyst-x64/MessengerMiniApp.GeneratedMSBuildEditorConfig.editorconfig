@@ -54,6 +54,12 @@ build_metadata.AdditionalFiles.ManifestResourceName = MessengerMiniApp.Pages.Log
 build_metadata.AdditionalFiles.TargetPath = Pages\LoginPage.xaml
 build_metadata.AdditionalFiles.RelativePath = Pages\LoginPage.xaml
 
+[D:/documents/repos/MessengerClient/MessengerMiniApp/Pages/RecoveryPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = MessengerMiniApp.Pages.RecoveryPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\RecoveryPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\RecoveryPage.xaml
+
 [D:/documents/repos/MessengerClient/MessengerMiniApp/Pages/RegisterPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = MessengerMiniApp.Pages.RegisterPage.xaml

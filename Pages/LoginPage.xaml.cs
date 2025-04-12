@@ -7,7 +7,7 @@ namespace MessengerMiniApp.Pages;
 public partial class LoginPage : ContentPage
 {
     private readonly HttpClient _httpClient = new HttpClient();
-    private const string ApiUrl = "https://noitorraa-messengerserver-ba27.twc1.net/api/users/";
+    private const string ApiUrl = "https://noitorraa-messengerserver-f42a.twc1.net/api/users/";
     public LoginPage()
 	{
         InitializeComponent();

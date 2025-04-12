@@ -11,7 +11,7 @@ public partial class MessageStatus
 
     public int? UserId { get; set; }
 
-    public bool Status { get; set; }
+    public int Status { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 
