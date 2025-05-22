@@ -1,132 +1,138 @@
-namespace MessengerMiniApp.Pages;
 using MessengerServer.Models;
 using Newtonsoft.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 
-public partial class RegisterPage : ContentPage
+namespace MessengerMiniApp.Pages
 {
-    private readonly HttpClient _httpClient = new HttpClient();
-    private string _tempPhoneNumber;
-    private const string ApiUrl = "https://noitorraa-messengerserver-f42a.twc1.net/api/users/";
-    public RegisterPage()
-	{
-		InitializeComponent();
-	}
-
-    private async void OnRegisterClicked(object sender, EventArgs e)
+    public partial class RegisterPage : ContentPage
     {
-        var password = PasswordEntry.Text;
-        var confirmPassword = ConfirmPasswordEntry.Text;
+        private readonly HttpClient _httpClient = new HttpClient();
+        private string _tempPhoneNumber;
+        private const string ApiUrl = "https://noitorraa-messengerserver-c2cc.twc1.net/api/users/";
 
-        if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmPassword))
+        public RegisterPage()
         {
-            await DisplayAlert("Ошибка", "Пожалуйста, введите пароль и подтвердите его", "ОК");
-            return;
+            InitializeComponent();
+            regBtn.IsEnabled = false;
+            CodeEntry.IsVisible = false;
+            ConfirmBtn.IsVisible = false;
         }
 
-        if (password != confirmPassword)
+        private async void OnSendCodeClicked(object sender, EventArgs e)
         {
-            await DisplayAlert("Ошибка", "Пароли не совпадают", "ОК");
-            return;
+            CodeEntry.IsVisible = true;
+            ConfirmBtn.IsVisible = true;
+            string rawPhone = PhoneEntry.Text;
+
+            if (string.IsNullOrWhiteSpace(rawPhone))
+            {
+                await DisplayAlert("Ошибка", "Введите номер телефона", "ОК");
+                return;
+            }
+
+            string cleanedPhone = Regex.Replace(rawPhone, @"[^\d]", "");
+
+            if (string.IsNullOrEmpty(cleanedPhone))
+            {
+                await DisplayAlert("Ошибка", "Введите корректный номер телефона", "OK");
+                return;
+            }
+
+            _tempPhoneNumber = cleanedPhone;
+
+            var sendCodeResponse = await _httpClient.PostAsync(
+                $"{ApiUrl}send-verification-code?phone={cleanedPhone}", null);
+            if (sendCodeResponse.IsSuccessStatusCode)
+            {
+                await DisplayAlert("Код отправлен", "Введите полученный код для подтверждения номера", "OK");
+            }
+            else
+            {
+                await DisplayAlert("Ошибка", "Не удалось отправить код. Попробуйте позже.", "OK");
+            }
         }
 
-        string cleanedPhone = Regex.Replace(PhoneEntry.Text, @"[^\d]", ""); // [[1]][[5]]
-        if (string.IsNullOrEmpty(cleanedPhone))
+        private async void ConfirmRegistrationClicked(object sender, EventArgs e)
         {
-            await DisplayAlert("Ошибка", "Введите корректный номер телефона", "OK");
-            return;
+            var code = CodeEntry.Text;
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                await DisplayAlert("Ошибка", "Введите код подтверждения", "OK");
+                return;
+            }
+
+            // Проверяем код, отправляем запрос на сервер
+            var verifyResponse = await _httpClient.PostAsync(
+                $"{ApiUrl}verify-code?phone={_tempPhoneNumber}&code={code}", null);
+
+            if (!verifyResponse.IsSuccessStatusCode)
+            {
+                await DisplayAlert("Ошибка", "Неверный или истекший код", "OK");
+                return;
+            }
+            else
+            {
+                await DisplayAlert("Код подтверждён", "Теперь можно завершить регистрацию", "OK");
+                CodeEntry.IsVisible = true; // сделаем видимой панель ввода кода, а кнопку регистрации сделаем активной, чтобы пользователь мог зарегаться, только когда подтвердит код
+                ConfirmBtn.IsVisible = true;
+                regBtn.IsEnabled = true;
+            }
         }
 
-        var user = new User
+        private async void OnRegisterClicked(object sender, EventArgs e)
         {
-            Username = UsernameEntry.Text,
-            PasswordHash = password, // На сервере пароль хешируется
-            PhoneNumber = PhoneEntry.Text
-        };
 
-        if (!ValidatePhone(PhoneEntry.Text))
-        {
-            await DisplayAlert("Ошибка", "Неверный формат телефона", "OK");
-            return;
-        }
+            var password = PasswordEntry.Text;
+            var confirmPassword = ConfirmPasswordEntry.Text;
+            if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmPassword))
+            {
+                await DisplayAlert("Ошибка", "Введите пароль и подтверждение", "ОК");
+                return;
+            }
+            if (password != confirmPassword)
+            {
+                await DisplayAlert("Ошибка", "Пароли не совпадают", "ОК");
+                return;
+            }
+            if (!ValidatePassword(password))
+            {
+                await DisplayAlert("Ошибка", "Пароль должен содержать 8-30 символов, заглавные и строчные буквы, цифры и спецсимволы", "ОК");
+                return;
+            }
+            if (string.IsNullOrEmpty(_tempPhoneNumber))
+            {
+                await DisplayAlert("Ошибка", "Сначала укажите номер телефона и подтвердите код", "ОК");
+                return;
+            }
 
-        if (!ValidatePassword(PasswordEntry.Text))
-        {
-            await DisplayAlert("Ошибка",
-                "Пароль должен содержать 8-30 символов, заглавные/строчные буквы, цифры и спецсимволы",
-                "OK");
-            return;
-        }
-
-        _tempPhoneNumber = cleanedPhone;
-
-        // Отправляем код
-        var sendCodeResponse = await _httpClient.PostAsync(
-            $"{ApiUrl}send-verification-code?phone={cleanedPhone}", null);
-
-        if (sendCodeResponse.IsSuccessStatusCode)
-        {
-            await DisplayAlert("Код отправлен",
-                "Введите код из SMS для завершения регистрации", "OK");
-        }
-
-        var content = new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync($"{ApiUrl}registration", content);
-
-        if (response.IsSuccessStatusCode)
-        {
-            await DisplayAlert("Успех", "Регистрация завершена", "ОК");
-            await Navigation.PopAsync();
-        }
-        else
-        {
-            await DisplayAlert("Ошибка", "Логин уже занят", "ОК");
-        }
-    }
-
-    private bool ValidatePassword(string password)
-    {
-        // Требования из [[2]][[8]]
-        return Regex.IsMatch(password,
-            @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,30}$");
-    }
-
-    private bool ValidatePhone(string phone)
-    {
-        // Формат из [[5]][[6]]
-        return Regex.IsMatch(phone,
-            @"^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,15}$");
-    }
-
-    private async void ConfirmRegistrationClicked(object sender, EventArgs e)
-    {
-        var code = CodeEntry.Text;
-
-        // Проверяем код
-        var verifyResponse = await _httpClient.PostAsync(
-            $"{ApiUrl}verify-code?phone={_tempPhoneNumber}&code={code}", null);
-
-        if (verifyResponse.IsSuccessStatusCode)
-        {
-            // Теперь отправляем данные регистрации
+            // Подготовка данных для регистрации
             var user = new User
             {
                 Username = UsernameEntry.Text,
-                PasswordHash = PasswordEntry.Text,
+                PasswordHash = password,
                 PhoneNumber = _tempPhoneNumber
             };
 
-            var content = new StringContent(JsonConvert.SerializeObject(user),
-                Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{ApiUrl}registration", content);
 
-            var regResponse = await _httpClient.PostAsync($"{ApiUrl}registration", content);
-            // ... остальная логика ...
+            if (response.IsSuccessStatusCode)
+            {
+                await DisplayAlert("Успех", "Регистрация завершена", "ОК");
+                await Navigation.PopAsync();
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                await DisplayAlert("Ошибка", error, "ОК");
+            }
         }
-    }
 
-    private void OnSendCodeClicked(object sender, EventArgs e)
-    {
-
+        private bool ValidatePassword(string password)
+        {
+            // Пароль должен содержать 8-30 символов, хотя бы одну заглавную, одну строчную букву, цифру и спецсимвол
+            return Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,30}$");
+        }
     }
 }

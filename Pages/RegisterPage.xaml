@@ -80,6 +80,7 @@
                 Grid.Row="6"/>
 
         <Button Text="Зарегистрироваться"
+                x:Name="regBtn"
                 Clicked="OnRegisterClicked"
                 BackgroundColor="{DynamicResource AccentColor}"
                 TextColor="White"

@@ -71,12 +71,15 @@
                 Grid.Column="0"/>
 
             <!-- Forgot Password -->
-            <!--<Label Text="Забыли пароль?"
+            <Label Text="Забыли пароль?"
                TextColor="{DynamicResource AccentColor}"
                HorizontalOptions="Center"
                Grid.Row="5"
-               Grid.Column="0"
-               GestureRecognizers="{TapGestureRecognizer OnForgotPasswordTapped}"/>-->
+               Grid.Column="0">
+                <Label.GestureRecognizers>
+                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                </Label.GestureRecognizers>
+            </Label>
         </Grid>
     </ContentPage.Content>
 </ContentPage>

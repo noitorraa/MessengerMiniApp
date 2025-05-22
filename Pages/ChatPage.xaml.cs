@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
 using Plugin.Maui.Audio;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
@@ -13,7 +15,7 @@ namespace MessengerMiniApp.Pages
         public ICommand DownloadFileCommand { get; }
         private HubConnection _hubConnection;
         private readonly HttpClient _httpClient = new HttpClient();
-        private const string ApiUrl = "https://noitorraa-messengerserver-f42a.twc1.net/api/users/";
+        private const string ApiUrl = "https://noitorraa-messengerserver-c2cc.twc1.net/api/users/";
         private readonly int _userId;
         public int CurrentUserId => _userId;
         private readonly int _chatId;
@@ -91,7 +93,7 @@ namespace MessengerMiniApp.Pages
         private async Task ConnectToSignalR()
         {
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl("https://noitorraa-messengerserver-f42a.twc1.net/chatHub")
+                .WithUrl("https://noitorraa-messengerserver-c2cc.twc1.net/chatHub")
                 .Build();
 
             _hubConnection.Closed += async (error) =>
@@ -149,11 +151,13 @@ namespace MessengerMiniApp.Pages
         private async void OnAttachClicked(object sender, EventArgs e)
         {
             var fileResult = await FilePicker.Default.PickAsync();
-            if (fileResult == null) return;
+            if (fileResult == null) return; 
 
             using var stream = await fileResult.OpenReadAsync();
             var content = new MultipartFormDataContent();
-            content.Add(new StreamContent(stream), "file", fileResult.FileName);
+            var fileContent = new StreamContent(stream);
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(fileResult.ContentType);
+            content.Add(fileContent, "file", fileResult.FileName);
 
             var response = await _httpClient.PostAsync(
                 $"{ApiUrl}upload/{_chatId}/{_userId}",
@@ -175,6 +179,7 @@ namespace MessengerMiniApp.Pages
                 await DisplayAlert("Ошибка", "Не удалось загрузить файл", "OK");
             }
         }
+
     }
 
     public class MessageDto : INotifyPropertyChanged
