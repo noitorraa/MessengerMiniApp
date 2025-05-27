@@ -13,22 +13,37 @@ public partial class LoginPage : ContentPage
         InitializeComponent();
     }
 
-    private async void OnLoginClicked(object sender, EventArgs e)
-    {
-        var login = Uri.EscapeDataString(LoginEntry.Text);
-        var password = Uri.EscapeDataString(PasswordEntry.Text);
+private async void OnLoginClicked(object sender, EventArgs e)
+{
+    var login = LoginEntry.Text;
+    var password = PasswordEntry.Text;
 
-        var response = await _httpClient.GetAsync($"{ApiUrl}authorization?login={login}&password={password}");
-        if (response.IsSuccessStatusCode)
-        {
-            var user = JsonConvert.DeserializeObject<User>(await response.Content.ReadAsStringAsync());
-            await Navigation.PushAsync(new ChatListPage(user.UserId));
-        }
-        else
-        {
-            await DisplayAlert("Ошибка", "Произошла ошибка при попытке авторизации", "OK");
-        }
+    if (string.IsNullOrWhiteSpace(login))
+    {
+        await DisplayAlert("Ошибка", "Поле логина не может быть пустым", "OK");
+        return;
     }
+
+    if (string.IsNullOrWhiteSpace(password))
+    {
+        await DisplayAlert("Ошибка", "Поле пароля не может быть пустым", "OK");
+        return;
+    }
+
+    var escapedLogin = Uri.EscapeDataString(login);
+    var escapedPassword = Uri.EscapeDataString(password);
+
+    var response = await _httpClient.GetAsync($"{ApiUrl}authorization?login={escapedLogin}&password={escapedPassword}");
+    if (response.IsSuccessStatusCode)
+    {
+        var user = JsonConvert.DeserializeObject<User>(await response.Content.ReadAsStringAsync());
+        await Navigation.PushAsync(new ChatListPage(user.UserId));
+    }
+    else
+    {
+        await DisplayAlert("Ошибка", "Произошла ошибка при попытке авторизации", "OK");
+    }
+}
 
     private async void OnRegisterClicked(object sender, EventArgs e)
     {

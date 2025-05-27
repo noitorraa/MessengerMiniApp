@@ -13,8 +13,10 @@ public partial class SearchResultsPage : ContentPage
     public SearchResultsPage(List<User> users, int userId)
     {
         InitializeComponent();
-        _users = new ObservableCollection<User>(users);
         _userId = userId;
+        // Фильтруем: исключаем пользователя с id == _userId
+        var filteredUsers = users.Where(u => u.UserId != _userId).ToList();
+        _users = new ObservableCollection<User>(filteredUsers);
         searchResultsListView.ItemsSource = _users;
     }
 
@@ -39,7 +41,7 @@ public partial class SearchResultsPage : ContentPage
             }
             else
             {
-                await DisplayAlert("������", "�� ������� ������� ���", "OK");
+                await DisplayAlert("Ошибка", "Не удалось перейти в чат", "OK");
             }
         }
     }
@@ -55,7 +57,7 @@ public partial class SearchResultsPage : ContentPage
             return createdChat.ChatId;
         }
 
-        return -1; // � ������ ������
+        return -1;
     }
 }
 

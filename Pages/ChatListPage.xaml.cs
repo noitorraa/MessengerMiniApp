@@ -133,7 +133,7 @@ namespace MessengerMiniApp.Pages
                 }
                 else
                 {
-                    await DisplayAlert("Ошибка", "На сервере ппроизошла ошиька при поиске пользователя", "OK");
+                    await DisplayAlert("Ошибка", "На сервере произошла ошибка при поиске пользователя", "OK");
                 }
             }
             catch (Exception ex)
@@ -146,6 +146,11 @@ namespace MessengerMiniApp.Pages
         {
             if (e.CurrentSelection.FirstOrDefault() is ChatDto selectedChat)
             {
+                if (selectedChat == null)
+                {
+                    await DisplayAlert("Ошибка", "Выбранный чат не найден", "OK");
+                    return;
+                }
                 await Navigation.PushAsync(new ChatPage(_userId, selectedChat.ChatId));
             }
 
@@ -158,7 +163,10 @@ namespace MessengerMiniApp.Pages
             var chat = swipeItem.BindingContext as ChatDto;
 
             if (chat == null)
+            {
+                await DisplayAlert("Ошибка", "Чат не найден", "OK");
                 return;
+            }
 
             bool confirm = await DisplayAlert("Удаление чата", $"Вы уверены, что хотите удалить чат с {chat.ChatName}?", "Да", "Нет");
             if (!confirm)
@@ -169,7 +177,7 @@ namespace MessengerMiniApp.Pages
                 var response = await _httpClient.DeleteAsync($"{ApiUrl}chats/{chat.ChatId}");
                 if (response.IsSuccessStatusCode)
                 {
-                    _chats.Remove(chat); 
+                    _chats.Remove(chat);
                     await DisplayAlert("Успешно", "Чат удалён", "OK");
                 }
                 else
