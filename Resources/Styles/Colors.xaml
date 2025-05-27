@@ -4,12 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!-- Custom Colors for MessengerApp -->
-    <Color x:Key="Primary">#64748B</Color> <!-- slate-500 -->
+    <Color x:Key="Primary">#7F799B</Color> <!-- slate-500 -->
     <Color x:Key="Secondary">#FCA5A5</Color> <!-- red-300 -->
     <Color x:Key="Tertiary">#65558F</Color> <!-- purple accent -->
 
     <Color x:Key="InputBackground">#E4E4E7</Color> <!-- zinc-200 -->
-    <Color x:Key="TextColor">#49454F</Color>
+    <Color x:Key="TextColor">#FF595263</Color>
     <Color x:Key="SupportingTextColor">#3F3F46</Color> <!-- zinc-700 -->
 
     <Color x:Key="White">White</Color>
