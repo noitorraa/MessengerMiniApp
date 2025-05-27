@@ -5,81 +5,126 @@
              Title="LoginPage"
              BackgroundColor="{DynamicResource PrimaryColor}">
     <ContentPage.Content>
-        <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, *"
-          ColumnDefinitions="*"
-          Padding="20"
-          RowSpacing="15"
-          VerticalOptions="CenterAndExpand">
-
-            <!-- Logo or App Name -->
-            <Image Source="loginicon.png"
-               
-               Grid.Row="0"
-               Grid.Column="0"
+    <Grid>
+        <!-- App Title -->
+        <Label Text="MessengerApp"
+               FontSize="24"
+               FontAttributes="Bold"
+               TextColor="White"
                HorizontalOptions="Center"
-               WidthRequest="300"
-               HeightRequest="300"
-               Margin="0,20,0,0"/>
+               VerticalOptions="Start"
+               Margin="0,57,0,0" />
 
-            <!-- Login Entry -->
-            <Frame CornerRadius="10"
-               Padding="10"
-               BackgroundColor="{DynamicResource SecondaryColor}"
-               Grid.Row="1"
-               Grid.Column="0">
-                <Entry x:Name="LoginEntry"
-                   Placeholder="Login"
-                   PlaceholderColor="LightGray"
-                   TextColor="White"
-                   BackgroundColor="Transparent"/>
-            </Frame>
+        <!-- Hero Image -->
+        <Image Source="texting_communication.png"
+               Aspect="AspectFill"
+               HorizontalOptions="Fill"
+               VerticalOptions="Start"
+               Margin="0,96,0,0"
+               HeightRequest="391" />
 
-            <!-- Password Entry -->
-            <Frame CornerRadius="10"
-               Padding="10"
-               BackgroundColor="{DynamicResource SecondaryColor}"
-               Grid.Row="2"
-               Grid.Column="0">
-                <Entry x:Name="PasswordEntry"
-                   Placeholder="Password"
-                   IsPassword="True"
-                   PlaceholderColor="LightGray"
-                   TextColor="White"
-                   BackgroundColor="Transparent"/>
-            </Frame>
+        <!-- Login Form -->
+        <VerticalStackLayout Margin="33,514,33,0"
+                             Spacing="32"
+                             HorizontalOptions="Center"
+                             WidthRequest="328">
+
+            <!-- Login Input -->
+            <VerticalStackLayout Spacing="0">
+                <Frame BackgroundColor="#E4E4E7"
+                       Padding="16,4"
+                       HasShadow="False"
+                       CornerRadius="4">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <BoxView WidthRequest="1"
+                                 HeightRequest="16"
+                                 Color="#65558F"
+                                 VerticalOptions="Center"
+                                 HorizontalOptions="Start" />
+                        <Entry Grid.Column="1"
+                               Placeholder="Логин"
+                               PlaceholderColor="#49454F"
+                               TextColor="#49454F"
+                               FontFamily="Roboto"
+                               FontSize="16"
+                               Margin="8,0,0,0"
+                               BackgroundColor="Transparent" />
+                    </Grid>
+                </Frame>
+                <BoxView HeightRequest="3"
+                         BackgroundColor="#64748B"
+                         HorizontalOptions="Fill" />
+                <Label Text="Supporting text"
+                       TextColor="#3F3F46"
+                       FontSize="12"
+                       Margin="16,4,0,0" />
+            </VerticalStackLayout>
+
+            <!-- Password Input -->
+            <VerticalStackLayout Spacing="0">
+                <Frame BackgroundColor="#E4E4E7"
+                       Padding="16,4"
+                       HasShadow="False"
+                       CornerRadius="4">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <BoxView WidthRequest="1"
+                                 HeightRequest="16"
+                                 Color="#65558F"
+                                 VerticalOptions="Center"
+                                 HorizontalOptions="Start" />
+                        <Entry Grid.Column="1"
+                               Placeholder="Пароль"
+                               IsPassword="True"
+                               PlaceholderColor="#49454F"
+                               TextColor="#49454F"
+                               FontFamily="Roboto"
+                               FontSize="16"
+                               Margin="8,0,0,0"
+                               BackgroundColor="Transparent" />
+                    </Grid>
+                </Frame>
+                <BoxView HeightRequest="3"
+                         BackgroundColor="#64748B"
+                         HorizontalOptions="Fill" />
+                <Label Text="Supporting text"
+                       TextColor="#3F3F46"
+                       FontSize="12"
+                       Margin="16,4,0,0" />
+            </VerticalStackLayout>
 
             <!-- Login Button -->
             <Button Text="Войти"
-                Clicked="OnLoginClicked"
-                BackgroundColor="{DynamicResource AccentColor}"
-                TextColor="White"
-                CornerRadius="10"
-                Padding="10"
-                Grid.Row="3"
-                Grid.Column="0"/>
+                    TextColor="White"
+                    FontSize="20"
+                    BackgroundColor="#FCA5A5"
+                    CornerRadius="100"
+                    HeightRequest="66"
+                    WidthRequest="191"
+                    HorizontalOptions="Center"
+                    Margin="0,32,0,0"
+                    Clicked="OnLoginClicked" />
+        </VerticalStackLayout>
 
-            <!-- Register Button -->
-            <Button Text="Зарегистрироваться"
-                Clicked="OnRegisterClicked"
-                BackgroundColor="Transparent"
-                TextColor="{DynamicResource AccentColor}"
-                BorderColor="{DynamicResource AccentColor}"
-                BorderWidth="2"
-                CornerRadius="10"
-                Padding="10"
-                Grid.Row="4"
-                Grid.Column="0"/>
-
-            <!-- Forgot Password -->
-            <Label Text="Забыли пароль?"
-               TextColor="{DynamicResource AccentColor}"
-               HorizontalOptions="Center"
-               Grid.Row="5"
-               Grid.Column="0">
+        <!-- Footer Links -->
+        <VerticalStackLayout VerticalOptions="End"
+                             HorizontalOptions="Center"
+                             Spacing="14"
+                             Margin="0,0,0,24">
+            <Label Text="Регистрация"
+                   TextColor="White"
+                   FontSize="16">
                 <Label.GestureRecognizers>
-                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                    <TapGestureRecognizer Tapped="OnRegisterClicked" />
                 </Label.GestureRecognizers>
             </Label>
-        </Grid>
+            <Label Text="Забыли пароль?"
+                   TextColor="White"
+                   FontSize="16">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
+                </Label.GestureRecognizers>
+            </Label>
+        </VerticalStackLayout>
+    </Grid>
     </ContentPage.Content>
 </ContentPage>

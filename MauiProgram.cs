@@ -14,6 +14,10 @@ namespace MessengerMiniApp
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("Roboto-Regular.ttf", "Roboto");
+                    fonts.AddFont("Roboto-Medium.ttf", "RobotoMedium");
+                    fonts.AddFont("Lato-Regular.ttf", "Lato");
+                    fonts.AddFont("Lato-Bold.ttf", "LatoBold");
                 });
 
             builder.Services.AddSingleton(AudioManager.Current);
