@@ -9,18 +9,27 @@ namespace MessengerMiniApp
 {
     public class IsOutgoingMessageConverter : IValueConverter
     {
+        /// <summary>
+        /// Current user ID for determining outgoing messages
+        /// </summary>
         public int CurrentUserId { get; set; }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        /// <summary>
+        /// Converts a user ID to a boolean indicating if the message is outgoing
+        /// </summary>
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is int userId)
+            {
+                // Message is outgoing if the user ID matches the current user
                 return userId == CurrentUserId;
+            }
             return false;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("ConvertBack is not supported for this converter");
         }
     }
 }

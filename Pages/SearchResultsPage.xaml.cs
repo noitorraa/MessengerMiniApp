@@ -6,7 +6,6 @@ using System.Text;
 
 public partial class SearchResultsPage : ContentPage
 {
-
     private readonly ObservableCollection<User> _users;
     private readonly int _userId;
 
@@ -24,19 +23,19 @@ public partial class SearchResultsPage : ContentPage
     {
         if (e.Item is User user)
         {
-            // ������� ����� ��� � ��������� �������������
+            // Создаем запрос на создание чата
             var newChat = new ChatCreationRequest
             {
                 ChatName = user.Username,
                 UserIds = new List<int> { _userId, user.UserId }
             };
 
-            // ��������� ��� � ���������� � ���� ������
+            // Отправляем запрос на сервер
             var chatId = await SaveChatAndMembers(newChat);
 
             if (chatId != -1)
             {
-                // ��������� �� �������� ����
+                // Переходим в чат
                 await Navigation.PushAsync(new ChatPage(_userId, chatId));
             }
             else
@@ -63,6 +62,6 @@ public partial class SearchResultsPage : ContentPage
 
 public class ChatCreationRequest
 {
-    public string ChatName { get; set; }
-    public List<int> UserIds { get; set; }
+    public string ChatName { get; set; } = null!;
+    public List<int> UserIds { get; set; } = null!;
 }

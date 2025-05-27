@@ -14,20 +14,20 @@ namespace MessengerMiniApp
         /// </summary>
         public int CurrentUserId { get; set; }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             return (int)value switch
             {
-                0 => Colors.Gray,    // Sent
-                1 => Colors.Blue,    // Delivered
-                2 => Colors.Green,   // Read
-                _ => Colors.Gray
+                0 => Colors.Gray,    // Gray for "sent"
+                1 => Colors.Blue,    // Blue for "delivered"
+                2 => Colors.Green,   // Green for "read"
+                _ => Colors.Red
             };
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("ConvertBack is not supported for this converter");
         }
     }
 }

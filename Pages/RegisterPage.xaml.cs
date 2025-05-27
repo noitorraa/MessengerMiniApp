@@ -8,7 +8,7 @@ namespace MessengerMiniApp.Pages
     public partial class RegisterPage : ContentPage
     {
         private readonly HttpClient _httpClient = new HttpClient();
-        private string _tempPhoneNumber;
+        private string? _tempPhoneNumber;
         private const string ApiUrl = "https://noitorraa-messengerserver-c2cc.twc1.net/api/users/";
 
         public RegisterPage()
@@ -46,6 +46,7 @@ namespace MessengerMiniApp.Pages
                 await DisplayAlert("Успех", "Код отправлен", "OK");
                 CodeEntry.IsVisible = true;
                 ConfirmBtn.IsVisible = true;
+                SendCodeButton.IsVisible = false;
             }
             else
             {
@@ -81,6 +82,11 @@ namespace MessengerMiniApp.Pages
             regBtn.IsEnabled = true;
         }
 
+        private void OnBackClicked(object sender, EventArgs e)
+        {
+
+        }
+
         private async void OnRegisterClicked(object sender, EventArgs e)
         {
 
@@ -106,10 +112,10 @@ namespace MessengerMiniApp.Pages
                 await DisplayAlert("Ошибка", "Телефон не подтверждён", "Ок");
                 return;
             }
-            
+
             var user = new User
             {
-                Username = UsernameEntry.Text,
+                Username = LoginEntry.Text,
                 PasswordHash = password,
                 PhoneNumber = _tempPhoneNumber
             };

@@ -35,10 +35,9 @@
 
                 <!-- Логин -->
                 <StackLayout Spacing="4">
-                    <Frame BackgroundColor="{DynamicResource InputBackground}"
+                    <Border BackgroundColor="{DynamicResource InputBackground}"
                            Padding="12"
-                           HasShadow="False"
-                           CornerRadius="6">
+                           StrokeShape="RoundRectangle 6">
                         <Grid ColumnDefinitions="Auto,*">
                             <BoxView WidthRequest="2"
                                      HeightRequest="24"
@@ -54,7 +53,7 @@
                                    Margin="8,0"
                                    BackgroundColor="Transparent" />
                         </Grid>
-                    </Frame>
+                    </Border>
                     <Label Text="Логин должен содержать больше 3 символов"
                            FontSize="12"
                            TextColor="{DynamicResource SupportingTextColor}"
@@ -63,10 +62,9 @@
 
                 <!-- Пароль -->
                 <StackLayout Spacing="4">
-                    <Frame BackgroundColor="#E4E4E7"
+                    <Border BackgroundColor="#E4E4E7"
                            Padding="12"
-                           HasShadow="False"
-                           CornerRadius="6">
+                           StrokeShape="RoundRectangle 6">
                         <Grid ColumnDefinitions="Auto,*">
                             <BoxView WidthRequest="2"
                                      HeightRequest="24"
@@ -83,7 +81,7 @@
                                    Margin="8,0"
                                    BackgroundColor="Transparent" />
                         </Grid>
-                    </Frame>
+                    </Border>
                     <Label Text="Пароль должен содержать 8-30 символов, включая заглавные, строчные буквы, цифры и спецсимволы"
                            FontSize="12"
                            TextColor="{DynamicResource SupportingTextColor}"

@@ -63,7 +63,6 @@ namespace MessengerMiniApp.Pages
             }
         }
 
-
         private async void LoadMessages()
         {
             var response = await _httpClient.GetAsync($"{ApiUrl}chats/{_chatId}/{_userId}/messages");
@@ -80,7 +79,6 @@ namespace MessengerMiniApp.Pages
             }
         }
 
-
         private async void OnSendClicked(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(MessageEntry.Text))
@@ -89,7 +87,6 @@ namespace MessengerMiniApp.Pages
                 MessageEntry.Text = string.Empty;
             }
         }
-
 
         private async Task ConnectToSignalR()
         {
@@ -155,7 +152,7 @@ namespace MessengerMiniApp.Pages
         private async void OnAttachClicked(object sender, EventArgs e)
         {
             var fileResult = await FilePicker.Default.PickAsync();
-            if (fileResult == null) return; 
+            if (fileResult == null) return;
 
             using var stream = await fileResult.OpenReadAsync();
             var content = new MultipartFormDataContent();
@@ -183,9 +180,8 @@ namespace MessengerMiniApp.Pages
                 await DisplayAlert("Ошибка", "Не удалось прикрепить файл", "OK");
             }
         }
-
     }
-    
+
     public class StatusDto
     {
         public int MessageId { get; set; }

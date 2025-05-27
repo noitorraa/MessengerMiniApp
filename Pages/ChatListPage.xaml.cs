@@ -9,7 +9,7 @@ namespace MessengerMiniApp.Pages
 {
     public partial class ChatListPage : ContentPage
     {
-        private HubConnection _hubConnection;
+        private HubConnection? _hubConnection;
         private readonly HttpClient _httpClient = new HttpClient();
         private const string ApiUrl = "https://noitorraa-messengerserver-c2cc.twc1.net/api/users/";
         private readonly int _userId;
@@ -52,7 +52,7 @@ namespace MessengerMiniApp.Pages
                         _chats.Clear();
                         foreach (var chat in chats)
                         {
-                            chat.ChatName = GetChatName(chat.Members, _userId);
+                            chat.ChatName = GetChatName(chat.Members ?? new List<UserDto>(), _userId);
                             _chats.Add(chat);
                         }
                     });
@@ -64,17 +64,22 @@ namespace MessengerMiniApp.Pages
             }
         }
 
-        private string GetChatName(List<UserDto> members, int currentUserId)
-        {
-            if (members.Count == 1) return "Произошла ошибка при создании чата, удалите чат и создайте заново";
+private string GetChatName(List<UserDto>? members, int currentUserId)
+{
+    if (members == null || members.Count == 0)
+        return "Неизвестный чат";
 
-            if (members.Count == 2)
-            {
-                return members.First(u => u.UserId != currentUserId).Username;
-            }
+    if (members.Count == 1)
+        return "Произошла ошибка при создании чата, удалите чат и создайте заново";
 
-            return string.Join(", ", members.Select(u => u.Username));
-        }
+    if (members.Count == 2)
+    {
+        var user = members.FirstOrDefault(u => u?.UserId != currentUserId);
+        return user?.Username ?? string.Empty;
+    }
+
+    return string.Join(", ", members.Where(u => u != null).Select(u => u.Username ?? string.Empty));
+}
 
         private async Task ConnectToSignalR()
         {
@@ -96,10 +101,13 @@ namespace MessengerMiniApp.Pages
 
             try
             {
-                await _hubConnection.StartAsync();
-                Console.WriteLine($"SignalR: {_hubConnection.State}");
-                await _hubConnection.InvokeAsync("RegisterUser", _userId);
-                Console.WriteLine($"Registered in group user_{_userId}");
+                if (_hubConnection != null)
+                {
+                    await _hubConnection.StartAsync();
+                    Console.WriteLine($"SignalR: {_hubConnection.State}");
+                    await _hubConnection.InvokeAsync("RegisterUser", _userId);
+                    Console.WriteLine($"Registered in group user_{_userId}");
+                }
             }
             catch (Exception ex)
             {
@@ -122,13 +130,13 @@ namespace MessengerMiniApp.Pages
                 if (response.IsSuccessStatusCode)
                 {
                     var users = JsonConvert.DeserializeObject<List<User>>(await response.Content.ReadAsStringAsync());
-                    if (users.Any())
+                    if (users != null && users.Any())
                     {
                         await Navigation.PushAsync(new SearchResultsPage(users, _userId));
                     }
                     else
                     {
-                        await DisplayAlert("Пользователь не найден", "Удостоверьтесь в правильности написания логина  попробуйте заново", "OK");
+                        await DisplayAlert("Пользователь не найден", "Удостоверьтесь в правильности написания логина попробуйте заново", "OK");
                     }
                 }
                 else
@@ -160,7 +168,7 @@ namespace MessengerMiniApp.Pages
         private async void OnDeleteChat(object sender, EventArgs e)
         {
             var swipeItem = sender as SwipeItem;
-            var chat = swipeItem.BindingContext as ChatDto;
+            var chat = swipeItem?.BindingContext as ChatDto;
 
             if (chat == null)
             {
@@ -195,14 +203,14 @@ namespace MessengerMiniApp.Pages
     public class ChatDto
     {
         public int ChatId { get; set; }
-        public string ChatName { get; set; } 
-        public List<UserDto> Members { get; set; }
+        public string? ChatName { get; set; }
+        public List<UserDto>? Members { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 
     public class UserDto
     {
         public int UserId { get; set; }
-        public string Username { get; set; }
+        public string? Username { get; set; }
     }
 }

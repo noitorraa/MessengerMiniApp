@@ -2,12 +2,11 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MessengerMiniApp.CustomControls.RoundedButton">
-    <Frame BackgroundColor="{Binding BackgroundColor}"
-           CornerRadius="100"
-           HasShadow="True"
-           Padding="0"
-           HeightRequest="{Binding Height}"
-           WidthRequest="{Binding Width}">
+    <Border BackgroundColor="{Binding BackgroundColor}"
+            StrokeShape="RoundRectangle 100"
+            Padding="0"
+            HeightRequest="{Binding Height}"
+            WidthRequest="{Binding Width}">
         <Button x:Name="InnerButton"
                 Text="{Binding Text}"
                 TextColor="White"
@@ -15,5 +14,5 @@
                 BackgroundColor="Transparent"
                 BorderColor="Transparent"
                 Clicked="OnButtonClicked" />
-    </Frame>
+    </Border>
 </ContentView>

@@ -15,13 +15,13 @@ namespace MessengerMiniApp.CustomControls
         public static readonly BindableProperty CommandParameterProperty =
             BindableProperty.Create(nameof(CommandParameter), typeof(object), typeof(RoundedButton), null);
 
-        public static readonly BindableProperty BackgroundColorProperty =
+        public new static readonly BindableProperty BackgroundColorProperty =
             BindableProperty.Create(nameof(BackgroundColor), typeof(Color), typeof(RoundedButton), Colors.Red);
 
-        public static readonly BindableProperty HeightProperty =
+        public new static readonly BindableProperty HeightProperty =
             BindableProperty.Create(nameof(Height), typeof(double), typeof(RoundedButton), 66.0);
 
-        public static readonly BindableProperty WidthProperty =
+        public new static readonly BindableProperty WidthProperty =
             BindableProperty.Create(nameof(Width), typeof(double), typeof(RoundedButton), 191.0);
 
         public static readonly BindableProperty FontSizeProperty =
@@ -51,13 +51,13 @@ namespace MessengerMiniApp.CustomControls
             set => SetValue(BackgroundColorProperty, value);
         }
 
-        public double Height
+        public new double Height
         {
             get => (double)GetValue(HeightProperty);
             set => SetValue(HeightProperty, value);
         }
 
-        public double Width
+        public new double Width
         {
             get => (double)GetValue(WidthProperty);
             set => SetValue(WidthProperty, value);
@@ -69,7 +69,7 @@ namespace MessengerMiniApp.CustomControls
             set => SetValue(FontSizeProperty, value);
         }
 
-        public event EventHandler<EventArgs> Clicked;
+        public event EventHandler<EventArgs>? Clicked;
 
         public RoundedButton()
         {

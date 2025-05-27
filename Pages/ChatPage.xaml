@@ -25,9 +25,12 @@
                         </StackLayout.Triggers>
 
                         <!-- Каркас сообщения -->
-                        <Frame CornerRadius="10" Padding="10" HasShadow="True"
-                               BackgroundColor="{Binding UserID, Converter={StaticResource UserIdToColorConverter}}"
-                               MaximumWidthRequest="250">
+                        <Border Stroke="LightGray"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="10"
+                                BackgroundColor="{Binding UserID, Converter={StaticResource UserIdToColorConverter}}"
+                                MaximumWidthRequest="250">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -58,23 +61,28 @@
                                            IsVisible="{Binding UserID, Converter={StaticResource IsOutgoingMessageConverter}}" />
                                 </StackLayout>
                             </Grid>
-                        </Frame>
+                        </Border>
                     </StackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
         <!-- Поле ввода текста и кнопки -->
-        <StackLayout Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Padding="10"
-                     BackgroundColor="{DynamicResource SecondaryColor}">
+        <Grid Grid.Row="1" Grid.Column="0" Padding="10"
+              BackgroundColor="{DynamicResource SecondaryColor}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
             <Button Text="📎" Clicked="OnAttachClicked" BackgroundColor="Transparent"
-                    TextColor="White" FontSize="24" Padding="10" />
+                    TextColor="White" FontSize="24" Padding="10" Grid.Column="0" />
             <Entry x:Name="MessageEntry" Placeholder="Type a message" PlaceholderColor="LightGray"
                    TextColor="White" BackgroundColor="{DynamicResource EntryBackgroundColor}"
-                   HorizontalOptions="FillAndExpand" Margin="10,0" />
+                   Margin="10,0" Grid.Column="1" />
             <Button Text="Send" Clicked="OnSendClicked"
                     BackgroundColor="{DynamicResource AccentColor}" TextColor="White"
-                    CornerRadius="10" Padding="10" />
-        </StackLayout>
+                    CornerRadius="10" Padding="10" Grid.Column="2" />
+        </Grid>
     </Grid>
 </ContentPage>

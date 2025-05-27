@@ -47,14 +47,14 @@ namespace MessengerMiniApp.CustomControls
             EntryField.Unfocused += OnEntryUnfocused;
         }
 
-        private void OnEntryFocused(object sender, FocusEventArgs e)
+        private void OnEntryFocused(object? sender, FocusEventArgs e)
         {
             // Change appearance when focused
             BottomLine.BackgroundColor = Colors.Purple;
             Cursor.BackgroundColor = Colors.Purple;
         }
 
-        private void OnEntryUnfocused(object sender, FocusEventArgs e)
+        private void OnEntryUnfocused(object? sender, FocusEventArgs e)
         {
             // Restore appearance when unfocused
             BottomLine.BackgroundColor = Color.FromArgb("#64748B");

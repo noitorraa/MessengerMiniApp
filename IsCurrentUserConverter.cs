@@ -10,22 +10,26 @@ namespace MessengerMiniApp
     public class IsCurrentUserConverter : IValueConverter
     {
         /// <summary>
-        /// Текущий идентификатор пользователя.
+        /// Current user ID for determining if content belongs to the current user
         /// </summary>
         public int CurrentUserId { get; set; }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        /// <summary>
+        /// Converts a user ID to a boolean indicating if it matches the current user
+        /// </summary>
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is int userId)
             {
+                // Content belongs to current user if IDs match
                 return userId == CurrentUserId;
             }
             return false;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("ConvertBack is not supported for this converter");
         }
     }
 }

@@ -9,7 +9,7 @@ namespace MessengerMiniApp
 {
     public class NullToVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             // Инверсия (для скрытия текста при наличии файла)
             bool invert = parameter?.ToString() == "Inverse";
@@ -23,9 +23,9 @@ namespace MessengerMiniApp
             return isVisible ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("ConvertBack is not supported for this converter");
         }
     }
 }

@@ -12,7 +12,7 @@ public partial class User
     public string PasswordHash { get; set; } = null!;
 
     public DateTime? CreatedAt { get; set; }
-    public string PhoneNumber { get; set; }
+    public string PhoneNumber { get; set; } = null!;
 
     public virtual ICollection<ChatMember> ChatMembers { get; set; } = new List<ChatMember>();
 

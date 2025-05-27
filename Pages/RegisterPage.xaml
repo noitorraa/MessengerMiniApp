@@ -3,89 +3,229 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MessengerMiniApp.Pages.RegisterPage"
              Title="Регистрация"
-             BackgroundColor="{DynamicResource PrimaryColor}">
-    <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, *"
-          ColumnDefinitions="*"
-          Padding="20"
-          RowSpacing="15"
-          VerticalOptions="CenterAndExpand">
+             BackgroundColor="{DynamicResource Primary}">
 
-        <Image Source="app_logo.png"
-               Grid.Row="0"
-               HorizontalOptions="Center"
-               WidthRequest="100"
-               HeightRequest="100"
-               Margin="0,20,0,0"/>
+    <ScrollView>
+        <Grid Padding="20"
+              RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, *"
+              ColumnDefinitions="*">
 
-        <Frame CornerRadius="10"
-               Padding="10"
-               BackgroundColor="{DynamicResource SecondaryColor}"
-               Grid.Row="1">
-            <Entry x:Name="UsernameEntry"
-                   Placeholder="Login"
-                   PlaceholderColor="LightGray"
-                   TextColor="White"
-                   BackgroundColor="Transparent"/>
-        </Frame>
+            <!-- 1. Картинка -->
+            <Image Grid.Row="0"
+                   Source="Colleagues_at_an_online_meeting.png"
+                   Aspect="AspectFill"
+                   HeightRequest="200"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Center"
+                   Margin="0,0,0,24" />
 
-        <Frame CornerRadius="10" Padding="10" BackgroundColor="{DynamicResource SecondaryColor}" Grid.Row="2">
-            <Entry x:Name="PhoneEntry" Placeholder="+7XXXXXXXXXX" Keyboard="Telephone"/>
-        </Frame>
+            <!-- 2. Кнопка "Назад" -->
+            <Button Grid.Row="0"
+                    Text="&lt;"
+                    FontSize="24"
+                    TextColor="{DynamicResource White}"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Start"
+                    VerticalOptions="Start"
+                    Clicked="OnBackClicked" />
 
-        <Frame CornerRadius="10"
-               Padding="10"
-               BackgroundColor="{DynamicResource SecondaryColor}"
-               Grid.Row="3">
-            <Entry x:Name="PasswordEntry"
-                   Placeholder="Password"
-                   IsPassword="True"
-                   PlaceholderColor="LightGray"
-                   TextColor="White"
-                   BackgroundColor="Transparent"/>
-        </Frame>
+            <!-- 3. Форма ввода -->
+            <StackLayout Grid.Row="1"
+                         Spacing="5"
+                         HorizontalOptions="Center"
+                         WidthRequest="300">
 
-        <Frame CornerRadius="10"
-               Padding="10"
-               BackgroundColor="{DynamicResource SecondaryColor}"
-               Grid.Row="4">
-            <Entry x:Name="ConfirmPasswordEntry"
-                   Placeholder="Confirm Password"
-                   IsPassword="True"
-                   PlaceholderColor="LightGray"
-                   TextColor="White"
-                   BackgroundColor="Transparent"/>
-        </Frame>
+                <!-- Логин -->
+                <StackLayout Spacing="4">
+<Border BackgroundColor="{DynamicResource InputBackground}"
+       Padding="12"
+       StrokeThickness="0"
+       StrokeShape="RoundRectangle 6">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <BoxView WidthRequest="2"
+                                     HeightRequest="24"
+                                     Color="{DynamicResource Tertiary}"
+                                     VerticalOptions="Center" />
+                            <Entry Grid.Column="1"
+                                   x:Name="LoginEntry"
+                                   Placeholder="Логин"
+                                   PlaceholderColor="{DynamicResource SupportingTextColor}"
+                                   TextColor="{DynamicResource SupportingTextColor}"
+                                   FontFamily="Roboto"
+                                   FontSize="16"
+                                   Margin="8,0"
+                                   BackgroundColor="Transparent" />
+                        </Grid>
+</Border>
+                    <Label Text="Логин должен содержать больше 3 символов"
+                           FontSize="12"
+                           TextColor="{DynamicResource SupportingTextColor}"
+                           HorizontalOptions="Center" />
+                </StackLayout>
 
-        <Grid Grid.Row="5" ColumnDefinitions="*, Auto" Margin="0,10">
-            <Entry x:Name="CodeEntry" 
-                   Placeholder="SMS code"
-                   Grid.Column="0"
-                   Margin="0,0,10,0"/>
-            <Button Text="Подтвердить"
-                    x:Name="ConfirmBtn"
-                    Clicked="ConfirmRegistrationClicked"
-                    Grid.Column="1"
-                    BackgroundColor="{DynamicResource AccentColor}"
-                    TextColor="White"
-                    CornerRadius="10"
-                    Padding="20,10"/>
+                <!-- Телефон -->
+                <StackLayout Spacing="4">
+<Border BackgroundColor="{DynamicResource InputBackground}"
+       Padding="12"
+       StrokeThickness="0"
+       StrokeShape="RoundRectangle 6">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <BoxView WidthRequest="2"
+                                     HeightRequest="24"
+                                     Color="{DynamicResource Tertiary}"
+                                     VerticalOptions="Center" />
+                            <Entry Grid.Column="1"
+                                   x:Name="PhoneEntry"
+                                   Placeholder="7XXXXXXXXXX"
+                                   Keyboard="Telephone"
+                                   PlaceholderColor="{DynamicResource SupportingTextColor}"
+                                   TextColor="{DynamicResource SupportingTextColor}"
+                                   FontFamily="Roboto"
+                                   FontSize="16"
+                                   Margin="8,0"
+                                   BackgroundColor="Transparent" />
+                        </Grid>
+</Border>
+                    <Label Text="Номер телефона должен начинаться с 7"
+                           FontSize="12"
+                           TextColor="{DynamicResource SupportingTextColor}"
+                           HorizontalOptions="Center" />
+                </StackLayout>
+
+                <!-- Пароль -->
+                <StackLayout Spacing="4">
+<Border BackgroundColor="{DynamicResource InputBackground}"
+       Padding="12"
+       StrokeThickness="0"
+       StrokeShape="RoundRectangle 6">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <BoxView WidthRequest="2"
+                                     HeightRequest="24"
+                                     Color="{DynamicResource Tertiary}"
+                                     VerticalOptions="Center" />
+                            <Entry Grid.Column="1"
+                                   x:Name="PasswordEntry"
+                                   IsPassword="True"
+                                   Placeholder="Пароль"
+                                   PlaceholderColor="{DynamicResource SupportingTextColor}"
+                                   TextColor="{DynamicResource SupportingTextColor}"
+                                   FontFamily="Roboto"
+                                   FontSize="16"
+                                   Margin="8,0"
+                                   BackgroundColor="Transparent" />
+                        </Grid>
+</Border>
+                    <Label Text="Пароль должен содержать 8-30 символов, включая заглавные, строчные буквы, цифры и спецсимволы"
+                           FontSize="12"
+                           TextColor="{DynamicResource SupportingTextColor}"
+                           HorizontalOptions="Center" />
+                </StackLayout>
+
+                <!-- Подтверждение пароля -->
+                <StackLayout Spacing="4">
+<Border BackgroundColor="{DynamicResource InputBackground}"
+       Padding="12"
+       StrokeThickness="0"
+       StrokeShape="RoundRectangle 6">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <BoxView WidthRequest="2"
+                                     HeightRequest="24"
+                                     Color="{DynamicResource Tertiary}"
+                                     VerticalOptions="Center" />
+                            <Entry Grid.Column="1"
+                                   x:Name="ConfirmPasswordEntry"
+                                   IsPassword="True"
+                                   Placeholder="Подтверждение пароля"
+                                   PlaceholderColor="{DynamicResource SupportingTextColor}"
+                                   TextColor="{DynamicResource SupportingTextColor}"
+                                   FontFamily="Roboto"
+                                   FontSize="16"
+                                   Margin="8,0"
+                                   BackgroundColor="Transparent" />
+                        </Grid>
+</Border>
+                    <Label Text="Пароли должны совпадать"
+                           FontSize="12"
+                           TextColor="{DynamicResource SupportingTextColor}"
+                           HorizontalOptions="Center" />
+                </StackLayout>
+
+            </StackLayout>
+
+            <!-- 4. Блок с кнопками и полем кода -->
+            <Grid Grid.Row="8"
+                  HorizontalOptions="Center"
+                  WidthRequest="300"
+                  RowDefinitions="Auto,Auto"
+                  ColumnDefinitions="*,*"
+                  RowSpacing="10">
+
+                <!-- Отправить код -->
+                <Button x:Name="SendCodeButton"
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="5"
+                        Grid.ColumnSpan="2"
+                        Text="Отправить код"
+                        FontSize="20"
+                        TextColor="{DynamicResource White}"
+                        BackgroundColor="{DynamicResource Secondary}"
+                        CornerRadius="100"
+                        HeightRequest="60"
+                        HorizontalOptions="Fill"
+                        Clicked="OnSendCodeClicked" />
+
+                <!-- Ввод кода -->
+                <Border
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="0,0,8,0"
+                    HeightRequest="60"
+                    HorizontalOptions="Fill"
+                    BackgroundColor="Transparent"
+                    Stroke="{DynamicResource Tertiary}" 
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle,0">
+                <Entry
+                    x:Name="CodeEntry"
+                    Placeholder="Введите код"
+                    PlaceholderColor="{DynamicResource SupportingTextColor}"
+                    TextColor="{DynamicResource SupportingTextColor}"
+                    FontFamily="Roboto"
+                    FontSize="16"
+                    BackgroundColor="Transparent"
+                    VerticalOptions="Center" />
+                </Border>
+
+                <!-- Подтвердить код -->
+                <Button x:Name="ConfirmBtn"
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Text="Подтвердить код"
+                        FontSize="20"
+                        TextColor="{DynamicResource White}"
+                        BackgroundColor="{DynamicResource Secondary}"
+                        CornerRadius="100"
+                        HeightRequest="60"
+                        HorizontalOptions="Fill"
+                        Clicked="ConfirmRegistrationClicked"/>
+
+                <!-- Зарегистрироваться -->
+                <Button x:Name="regBtn"
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Text="Зарегистрироваться"
+                        FontSize="20"
+                        TextColor="{DynamicResource White}"
+                        BackgroundColor="{DynamicResource Secondary}"
+                        CornerRadius="100"
+                        HeightRequest="60"
+                        HorizontalOptions="Fill"
+                        IsEnabled="False"
+                        Clicked="OnRegisterClicked" />
+
+            </Grid>
         </Grid>
-
-        <Button Text="Отправить код"
-                Clicked="OnSendCodeClicked"
-                BackgroundColor="{DynamicResource AccentColor}"
-                TextColor="White"
-                CornerRadius="10"
-                Padding="10"
-                Grid.Row="6"/>
-
-        <Button Text="Зарегистрироваться"
-                x:Name="regBtn"
-                Clicked="OnRegisterClicked"
-                BackgroundColor="{DynamicResource AccentColor}"
-                TextColor="White"
-                CornerRadius="10"
-                Padding="10"
-                Grid.Row="7"/>
-    </Grid>
+    </ScrollView>
 </ContentPage>
