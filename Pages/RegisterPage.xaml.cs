@@ -21,35 +21,37 @@ namespace MessengerMiniApp.Pages
 
         private async void OnSendCodeClicked(object sender, EventArgs e)
         {
-            CodeEntry.IsVisible = true;
-            ConfirmBtn.IsVisible = true;
             string rawPhone = PhoneEntry.Text;
-
             if (string.IsNullOrWhiteSpace(rawPhone))
             {
-                await DisplayAlert("Ошибка", "Введите номер телефона", "ОК");
+                await DisplayAlert("РћС€РёР±РєР°", "Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°", "OK");
                 return;
             }
 
             string cleanedPhone = Regex.Replace(rawPhone, @"[^\d]", "");
-
-            if (string.IsNullOrEmpty(cleanedPhone))
+            if (cleanedPhone.Length < 10 || cleanedPhone.Length > 15)
             {
-                await DisplayAlert("Ошибка", "Введите корректный номер телефона", "OK");
+                await DisplayAlert("РћС€РёР±РєР°", "РќРµРІРµСЂРЅС‹Р№ С„РѕСЂРјР°С‚ С‚РµР»РµС„РѕРЅР°", "OK");
                 return;
             }
 
             _tempPhoneNumber = cleanedPhone;
+            Console.WriteLine($"РћС‡РёС‰РµРЅРЅС‹Р№ РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°: {_tempPhoneNumber}");
 
-            var sendCodeResponse = await _httpClient.PostAsync(
-                $"{ApiUrl}send-verification-code?phone={cleanedPhone}", null);
-            if (sendCodeResponse.IsSuccessStatusCode)
+            var response = await _httpClient.PostAsync($"{ApiUrl}send-verification-code",
+                new StringContent(JsonConvert.SerializeObject(new { phone = cleanedPhone }), Encoding.UTF8, "application/json"));
+
+            if (response.IsSuccessStatusCode)
             {
-                await DisplayAlert("Код отправлен", "Введите полученный код для подтверждения номера", "OK");
+                await DisplayAlert("РЈСЃРїРµС…", "РљРѕРґ РѕС‚РїСЂР°РІР»РµРЅ", "OK");
+                CodeEntry.IsVisible = true;
+                ConfirmBtn.IsVisible = true;
             }
             else
             {
-                await DisplayAlert("Ошибка", "Не удалось отправить код. Попробуйте позже.", "OK");
+                var bytes = await response.Content.ReadAsByteArrayAsync();
+                var error = Encoding.UTF8.GetString(bytes);
+                await DisplayAlert("РћС€РёР±РєР°", error, "OK");
             }
         }
 
@@ -58,26 +60,25 @@ namespace MessengerMiniApp.Pages
             var code = CodeEntry.Text;
             if (string.IsNullOrWhiteSpace(code))
             {
-                await DisplayAlert("Ошибка", "Введите код подтверждения", "OK");
+                await DisplayAlert("РћС€РёР±РєР°", "Р’РІРµРґРёС‚Рµ РєРѕРґ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ", "OK");
                 return;
             }
 
-            // Проверяем код, отправляем запрос на сервер
-            var verifyResponse = await _httpClient.PostAsync(
-                $"{ApiUrl}verify-code?phone={_tempPhoneNumber}&code={code}", null);
+            var content = new StringContent(JsonConvert.SerializeObject(new { phone = _tempPhoneNumber, code }), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{ApiUrl}verify-code", content);
 
-            if (!verifyResponse.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                await DisplayAlert("Ошибка", "Неверный или истекший код", "OK");
+                var bytes = await response.Content.ReadAsByteArrayAsync();
+                var error = Encoding.UTF8.GetString(bytes);
+                await DisplayAlert("РћС€РёР±РєР°", error, "OK");
                 return;
             }
-            else
-            {
-                await DisplayAlert("Код подтверждён", "Теперь можно завершить регистрацию", "OK");
-                CodeEntry.IsVisible = true; // сделаем видимой панель ввода кода, а кнопку регистрации сделаем активной, чтобы пользователь мог зарегаться, только когда подтвердит код
-                ConfirmBtn.IsVisible = true;
-                regBtn.IsEnabled = true;
-            }
+
+            await DisplayAlert("РЈСЃРїРµС…", "РљРѕРґ РїРѕРґС‚РІРµСЂР¶РґС‘РЅ", "OK");
+            CodeEntry.IsVisible = false;
+            ConfirmBtn.IsVisible = false;
+            regBtn.IsEnabled = true;
         }
 
         private async void OnRegisterClicked(object sender, EventArgs e)
@@ -87,26 +88,25 @@ namespace MessengerMiniApp.Pages
             var confirmPassword = ConfirmPasswordEntry.Text;
             if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmPassword))
             {
-                await DisplayAlert("Ошибка", "Введите пароль и подтверждение", "ОК");
+                await DisplayAlert("РћС€РёР±РєР°", "Р—Р°РїРѕР»РЅРёС‚Рµ РїРѕР»СЏ РїР°СЂРѕР»СЏ Рё РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РїР°СЂРѕР»СЏ", "РћРє");
                 return;
             }
             if (password != confirmPassword)
             {
-                await DisplayAlert("Ошибка", "Пароли не совпадают", "ОК");
+                await DisplayAlert("РћС€РёР±РєР°", "РџР°СЂРѕР»Рё РЅРµ СЃРѕРІРїР°РґР°СЋС‚", "РћРє");
                 return;
             }
             if (!ValidatePassword(password))
             {
-                await DisplayAlert("Ошибка", "Пароль должен содержать 8-30 символов, заглавные и строчные буквы, цифры и спецсимволы", "ОК");
+                await DisplayAlert("РћС€РёР±РєР°", "РџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РґР»РёРЅРѕР№ РѕС‚ 8 РґРѕ 30 СЃРёРјРІРѕР»РѕРІ, СЃРѕРґРµСЂР¶Р°С‚СЊ С†РёС„СЂС‹ Рё СЃС†РµРЅСЃРёРјРІРѕР»С‹", "РћРє");
                 return;
             }
             if (string.IsNullOrEmpty(_tempPhoneNumber))
             {
-                await DisplayAlert("Ошибка", "Сначала укажите номер телефона и подтвердите код", "ОК");
+                await DisplayAlert("РћС€РёР±РєР°", "РўРµР»РµС„РѕРЅ РЅРµ РїРѕРґС‚РІРµСЂР¶РґС‘РЅ", "РћРє");
                 return;
             }
-
-            // Подготовка данных для регистрации
+            
             var user = new User
             {
                 Username = UsernameEntry.Text,
@@ -119,19 +119,18 @@ namespace MessengerMiniApp.Pages
 
             if (response.IsSuccessStatusCode)
             {
-                await DisplayAlert("Успех", "Регистрация завершена", "ОК");
+                await DisplayAlert("РЈСЃРїРµС€РЅРѕ", "Р’С‹ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°Р»РёСЃСЊ", "РћРє");
                 await Navigation.PopAsync();
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                await DisplayAlert("Ошибка", error, "ОК");
+                await DisplayAlert("РћС€РёР±РєР°", error, "РћРє");
             }
         }
 
         private bool ValidatePassword(string password)
         {
-            // Пароль должен содержать 8-30 символов, хотя бы одну заглавную, одну строчную букву, цифру и спецсимвол
             return Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,30}$");
         }
     }

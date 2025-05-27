@@ -3,11 +3,83 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MessengerMiniApp.Pages.RecoveryPage"
              Title="RecoveryPage">
-    <Grid>
-        <Entry x:Name="PhoneEntry" Placeholder="Phone number"/>
-        <Button Text="Send Code" Clicked="SendCodeClicked"/>
-        <Entry x:Name="CodeEntry" Placeholder="SMS code"/>
-        <Entry x:Name="NewPassword" Placeholder="New password" IsPassword="True"/>
-        <Button Text="Reset Password" Clicked="ResetPasswordClicked"/>
-    </Grid>
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+            <!-- Ввод номера телефона -->
+            <Label Text="Номер телефона" FontAttributes="Bold"/>
+            <Entry x:Name="PhoneEntry"
+                   Placeholder="79123456789"
+                   Keyboard="Telephone"
+                   MaxLength="15"/>
+
+            <!-- Кнопка отправки кода -->
+            <Button x:Name="SendCodeButton"
+                    Text="Отправить код"
+                    Clicked="SendCodeClicked"
+                    BackgroundColor="#4CAF50"
+                    TextColor="White"/>
+
+            <!-- Отсчет времени для повторной отправки -->
+            <Label x:Name="TimerLabel"
+                    Text=""
+                    TextColor="Gray"
+                    HorizontalOptions="Center"
+                    IsVisible="False"/>
+
+            <!-- Ввод кода подтверждения -->
+            <Label x:Name="CodeLabel"
+                    Text="Введите код из SMS"
+                    FontAttributes="Bold"
+                    IsVisible="False"/>
+            <Entry x:Name="CodeEntry"
+                    Placeholder="Код подтверждения"
+                    Keyboard="Numeric"
+                    MaxLength="6"
+                    IsVisible="False"/>
+
+            <!-- Ввод нового пароля -->
+            <Label x:Name="NewPasswordLabel"
+                    Text="Новый пароль"
+                    FontAttributes="Bold"
+                    IsVisible="False"/>
+            <Entry x:Name="NewPassword"
+                    Placeholder="Новый пароль"
+                    IsPassword="True"
+                    MaxLength="30"
+                    IsVisible="False"/>
+
+            <!-- Подтверждение пароля -->
+            <Label x:Name="ConfirmPasswordLabel"
+                    Text="Подтвердите пароль"
+                    FontAttributes="Bold"
+                    IsVisible="False"/>
+            <Entry x:Name="ConfirmPassword"
+                    Placeholder="Подтвердите пароль"
+                    IsPassword="True"
+                    MaxLength="30"
+                    IsVisible="False"/>
+
+            <!-- Подсказка о требованиях к паролю -->
+            <Label x:Name="PasswordHint"
+                    Text="Пароль должен содержать 8-30 символов, включая заглавные, строчные буквы, цифры и спецсимволы"
+                    TextColor="Gray"
+                    FontSize="12"
+                    IsVisible="False"/>
+
+            <!-- Кнопка сброса пароля -->
+            <Button x:Name="ResetPasswordButton"
+                    Text="Сбросить пароль"
+                    Clicked="ResetPasswordClicked"
+                    BackgroundColor="#2196F3"
+                    TextColor="White"
+                    IsVisible="False"/>
+
+            <!-- Метка для отображения ошибок -->
+            <Label x:Name="ErrorLabel"
+                    Text=""
+                    TextColor="Red"
+                    HorizontalOptions="Center"
+                    IsVisible="False"/>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

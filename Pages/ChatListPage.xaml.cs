@@ -21,29 +21,19 @@ namespace MessengerMiniApp.Pages
             _userId = userId;
             _chats = new ObservableCollection<ChatDto>();
             chatListView.ItemsSource = _chats;
-            App.signalRService.OnChatListUpdated += OnChatListUpdated;
             _ = LoadChats();
-        }
-
-        private async void OnChatListUpdated()
-        {
-            Console.WriteLine("Получен сигнал для обновления списка чатов");
-            await LoadChats();
         }
 
         protected override void OnDisappearing()
         {
-            // Отписка при уходе со страницы
-            App.signalRService.OnChatListUpdated -= OnChatListUpdated;
             base.OnDisappearing();
-
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
             await ConnectToSignalR();
-            await LoadChats(); // Обновляем список чатов при каждом появлении страницы
+            await LoadChats();
         }
 
         private async Task LoadChats()
@@ -62,7 +52,6 @@ namespace MessengerMiniApp.Pages
                         _chats.Clear();
                         foreach (var chat in chats)
                         {
-                            // Формируем название на клиенте
                             chat.ChatName = GetChatName(chat.Members, _userId);
                             _chats.Add(chat);
                         }
@@ -71,21 +60,19 @@ namespace MessengerMiniApp.Pages
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Ошибка", ex.Message, "OK");
+                await DisplayAlert("РћС€РёР±РєР°", ex.Message, "OK");
             }
         }
 
         private string GetChatName(List<UserDto> members, int currentUserId)
         {
-            if (members.Count == 1) return "Личный чат (ошибка)";
+            if (members.Count == 1) return "РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё С‡Р°С‚Р°, СѓРґР°Р»РёС‚Рµ С‡Р°С‚ Рё СЃРѕР·РґР°Р№С‚Рµ Р·Р°РЅРѕРІРѕ";
 
-            // Для личных чатов: имя собеседника
             if (members.Count == 2)
             {
                 return members.First(u => u.UserId != currentUserId).Username;
             }
 
-            // Для групповых чатов: список всех участников
             return string.Join(", ", members.Select(u => u.Username));
         }
 
@@ -101,20 +88,22 @@ namespace MessengerMiniApp.Pages
                 await ConnectToSignalR();
             };
 
-            _hubConnection.On("NotifyUpdateChatList", async () => // пока не рааботает! нужно исправить
+            _hubConnection.On("NotifyUpdateChatList", async () =>
             {
-                Console.WriteLine("Получен сигнал для обновления списка чатов");
-                await LoadChats(); // Загружаем обновленный список чатов
+                Console.WriteLine("РћР±РЅРѕРІР»СЏРµРј СЃРїРёСЃРѕРє С‡Р°С‚РѕРІ, РїРѕС‚РѕРјСѓ С‡С‚Рѕ РїРѕР»СѓС‡РёР»Рё СѓРІРµРґРѕРјР»РµРЅРёРµ");
+                await LoadChats();
             });
 
             try
             {
                 await _hubConnection.StartAsync();
-                Console.WriteLine($"Состояние подключения: {_hubConnection.State}");
+                Console.WriteLine($"SignalR: {_hubConnection.State}");
+                await _hubConnection.InvokeAsync("RegisterUser", _userId);
+                Console.WriteLine($"Registered in group user_{_userId}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка подключения: {ex.Message}");
+                Console.WriteLine($"РћС€РёР±РєР° signalR: {ex.Message}");
             }
         }
 
@@ -123,7 +112,7 @@ namespace MessengerMiniApp.Pages
             var searchQuery = searchBar.Text;
             if (string.IsNullOrWhiteSpace(searchQuery))
             {
-                await DisplayAlert("Ошибка", "Введите логин", "OK");
+                await DisplayAlert("РћС€РёР±РєР°", "Р’РІРµРґРёС‚Рµ РёСЃРєРѕРјС‹Р№ Р»РѕРіРёРЅ", "OK");
                 return;
             }
 
@@ -139,17 +128,17 @@ namespace MessengerMiniApp.Pages
                     }
                     else
                     {
-                        await DisplayAlert("Результаты", "Пользователи не найдены", "OK");
+                        await DisplayAlert("РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ", "РЈРґРѕСЃС‚РѕРІРµСЂСЊС‚РµСЃСЊ РІ РїСЂР°РІРёР»СЊРЅРѕСЃС‚Рё РЅР°РїРёСЃР°РЅРёСЏ Р»РѕРіРёРЅР°  РїРѕРїСЂРѕР±СѓР№С‚Рµ Р·Р°РЅРѕРІРѕ", "OK");
                     }
                 }
                 else
                 {
-                    await DisplayAlert("Ошибка", "Не удалось выполнить поиск", "OK");
+                    await DisplayAlert("РћС€РёР±РєР°", "РќР° СЃРµСЂРІРµСЂРµ РїРїСЂРѕРёР·РѕС€Р»Р° РѕС€РёСЊРєР° РїСЂРё РїРѕРёСЃРєРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Ошибка", ex.Message, "OK");
+                await DisplayAlert("РћС€РёР±РєР°", ex.Message, "OK");
             }
         }
 
@@ -157,46 +146,40 @@ namespace MessengerMiniApp.Pages
         {
             if (e.CurrentSelection.FirstOrDefault() is ChatDto selectedChat)
             {
-                // Переходим на страницу чата
                 await Navigation.PushAsync(new ChatPage(_userId, selectedChat.ChatId));
             }
 
-            // Сбрасываем выделение
             chatListView.SelectedItem = null;
         }
 
         private async void OnDeleteChat(object sender, EventArgs e)
         {
-            // Получаем элемент, который был свайпнут
             var swipeItem = sender as SwipeItem;
             var chat = swipeItem.BindingContext as ChatDto;
 
             if (chat == null)
                 return;
 
-            // Подтверждение удаления
-            bool confirm = await DisplayAlert("Удаление чата", $"Вы уверены, что хотите удалить чат {chat.ChatName}?", "Да", "Нет");
+            bool confirm = await DisplayAlert("РЈРґР°Р»РµРЅРёРµ С‡Р°С‚Р°", $"Р’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ СѓРґР°Р»РёС‚СЊ С‡Р°С‚ СЃ {chat.ChatName}?", "Р”Р°", "РќРµС‚");
             if (!confirm)
                 return;
 
             try
             {
-                // Отправляем запрос на удаление чата
                 var response = await _httpClient.DeleteAsync($"{ApiUrl}chats/{chat.ChatId}");
                 if (response.IsSuccessStatusCode)
                 {
-                    // Удаляем чат из коллекции
                     _chats.Remove(chat); 
-                    await DisplayAlert("Успех", "Чат удален", "OK");
+                    await DisplayAlert("РЈСЃРїРµС€РЅРѕ", "Р§Р°С‚ СѓРґР°Р»С‘РЅ", "OK");
                 }
                 else
                 {
-                    await DisplayAlert("Ошибка", "Не удалось удалить чат", "OK");
+                    await DisplayAlert("РћС€РёР±РєР°", "РќРµ СѓРґР°Р»РѕСЃСЊ СѓРґР°Р»РёС‚СЊ С‡Р°С‚", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Ошибка", ex.Message, "OK");
+                await DisplayAlert("РћС€РёР±РєР°", ex.Message, "OK");
             }
         }
     }

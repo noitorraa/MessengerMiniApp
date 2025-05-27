@@ -13,7 +13,9 @@ namespace MessengerMiniApp.Pages
     public partial class ChatPage : ContentPage
     {
         public ICommand DownloadFileCommand { get; }
-        private HubConnection _hubConnection;
+        private HubConnection _hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://noitorraa-messengerserver-c2cc.twc1.net/chatHub")
+            .Build();
         private readonly HttpClient _httpClient = new HttpClient();
         private const string ApiUrl = "https://noitorraa-messengerserver-c2cc.twc1.net/api/users/";
         private readonly int _userId;
@@ -44,7 +46,7 @@ namespace MessengerMiniApp.Pages
             BindingContext = this;
             LoadMessages();
 
-            _ = ConnectToSignalR(); // Используем дискорд для асинхронного вызова (await нельзя потому что метод не асинхронный)
+            _ = ConnectToSignalR();
         }
 
         private async void DownloadFile(string fileUrl)
@@ -53,12 +55,11 @@ namespace MessengerMiniApp.Pages
 
             try
             {
-                // Открываем файл в браузере или скачиваем
                 await Launcher.OpenAsync(new Uri(fileUrl));
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Ошибка", $"Не удалось скачать файл: {ex.Message}", "OK");
+                await DisplayAlert("РћС€РёР±РєР°", $"РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ С„Р°Р№Р»: {ex.Message}", "OK");
             }
         }
 
@@ -102,34 +103,38 @@ namespace MessengerMiniApp.Pages
                 await ConnectToSignalR();
             };
 
-            // Подписка на получение сообщений
             _hubConnection.On<MessageDto>("ReceiveMessage", (messageDto) =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     if (messageDto.FileUrl != null)
                     {
-                        messageDto.Content = $"[Файл: {Path.GetFileName(messageDto.FileUrl)}]";
+                        messageDto.Content = $"[Р¤Р°Р№Р»: {Path.GetFileName(messageDto.FileUrl)}]";
                     }
                     _messages.Add(messageDto);
                 });
             });
 
-            _hubConnection.On<int, int>("UpdateMessageStatus", (messageId, status) =>
+            _hubConnection.On<List<StatusDto>>("BatchUpdateStatuses", statuses =>
             {
-                var message = _messages.FirstOrDefault(m => m.MessageId == messageId);
-                if (message != null)
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    message.Status = status;
-                }
+                    foreach (var st in statuses)
+                    {
+                        var msg = _messages.FirstOrDefault(m => m.MessageId == st.MessageId);
+                        if (msg != null)
+                        {
+                            msg.Status = st.Status;
+                        }
+                    }
+                });
             });
 
             _hubConnection.On("RefreshMessages", () =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    // Перезагрузить сообщения или обновить конкретные статусы
-                    Console.WriteLine("Перезагружаем страницу");
+                    Console.WriteLine("РћР±РЅРѕРІР»РµРЅРёРµ СЃРѕРѕР±С‰РµРЅРёР№");
                     LoadMessages();
                 });
             });
@@ -137,14 +142,13 @@ namespace MessengerMiniApp.Pages
             try
             {
                 await _hubConnection.StartAsync();
-                await _hubConnection.InvokeAsync("JoinChat", _chatId); // Вход в группу
-                Console.WriteLine("Успешное подключение к чату");
-                Console.WriteLine("Отмечаем сообщения как прочитанные");
+                await _hubConnection.InvokeAsync("JoinChat", _chatId);
+                Console.WriteLine("РџРѕРґРєР»СЋС‡РёР»РёСЃСЊ Рє hub");
                 await _hubConnection.InvokeAsync("MarkMessagesAsRead", _chatId, _userId);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка подключения: {ex.Message}");
+                Console.WriteLine($"РћС€РёР±РєР° РїСЂРё РїРѕРґРєР»СЋС‡РµРЅРёРё Рє С…Р°Р±Сѓ: {ex.Message}");
             }
         }
 
@@ -176,10 +180,16 @@ namespace MessengerMiniApp.Pages
             }
             else
             {
-                await DisplayAlert("Ошибка", "Не удалось загрузить файл", "OK");
+                await DisplayAlert("РћС€РёР±РєР°", "РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРёРєСЂРµРїРёС‚СЊ С„Р°Р№Р»", "OK");
             }
         }
 
+    }
+    
+    public class StatusDto
+    {
+        public int MessageId { get; set; }
+        public int Status    { get; set; }
     }
 
     public class MessageDto : INotifyPropertyChanged
@@ -214,7 +224,7 @@ namespace MessengerMiniApp.Pages
                 if (_status != value)
                 {
                     _status = value;
-                    OnPropertyChanged(); // Важно: вызывает обновление UI
+                    OnPropertyChanged();
                 }
             }
         }

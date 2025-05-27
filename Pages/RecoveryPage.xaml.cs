@@ -1,51 +1,147 @@
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
 namespace MessengerMiniApp.Pages;
 
 public partial class RecoveryPage : ContentPage
 {
     private readonly HttpClient _httpClient = new HttpClient();
     private const string ApiUrl = "https://noitorraa-messengerserver-c2cc.twc1.net/api/users/";
-	public RecoveryPage()
-	{
-		InitializeComponent();
-	}
+    private string _tempPhoneNumber;
 
-    // RecoveryPage.xaml.cs
+    public RecoveryPage()
+    {
+        InitializeComponent();
+        _tempPhoneNumber = string.Empty;
+    }
+
+    // РћС‚РїСЂР°РІРєР° РєРѕРґР° СЃР±СЂРѕСЃР° РїР°СЂРѕР»СЏ
     private async void SendCodeClicked(object sender, EventArgs e)
     {
-        var response = await _httpClient.PostAsync(
-            $"{ApiUrl}send-reset-code?phone={PhoneEntry.Text}", null);
-
-        if (response.IsSuccessStatusCode)
-            await DisplayAlert("Success", "Code sent", "OK");
-        else await DisplayAlert("Ошибка", "Проверьте правильность номера телефона и удостоверьтесь, что ваш аккаунт зарегистрирован на этот номер телефона", "OK");
-    }
-
-    private async void ResetPasswordClicked(object sender, EventArgs e)
-    {
-        if (!ValidatePassword(NewPassword.Text) || string.IsNullOrEmpty(NewPassword.Text))
+        string rawPhone = PhoneEntry.Text;
+        if (string.IsNullOrWhiteSpace(rawPhone))
         {
-            await DisplayAlert("Ошибка", "Пароль не может быть пустым и должен содержать 8-30 символов, заглавные и строчные буквы, цифры и спецсимволы", "ОК");
+            await DisplayAlert("РћС€РёР±РєР°", "Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°", "OK");
             return;
         }
-        var model = new
-        {
-            Phone = PhoneEntry.Text,
-            Code = CodeEntry.Text,
-            NewPassword = NewPassword.Text
-        };
 
-        var response = await _httpClient.PostAsJsonAsync(
-            $"{ApiUrl}reset-password", model);
+        string cleanedPhone = Regex.Replace(rawPhone, @"[^\d]", "");
+        if (cleanedPhone.Length < 10 || cleanedPhone.Length > 15)
+        {
+            await DisplayAlert("РћС€РёР±РєР°", "РќРµРІРµСЂРЅС‹Р№ С„РѕСЂРјР°С‚ С‚РµР»РµС„РѕРЅР°", "OK");
+            return;
+        }
+
+        _tempPhoneNumber = cleanedPhone;
+
+        var response = await _httpClient.PostAsync($"{ApiUrl}send-reset-code?phone={cleanedPhone}", null);
+
 
         if (response.IsSuccessStatusCode)
-            await Navigation.PopAsync();
+        {
+            await DisplayAlert("РЈСЃРїРµС…", "РљРѕРґ РѕС‚РїСЂР°РІР»РµРЅ", "OK");
+            ShowVerificationFields();
+            StartTimer();
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            await DisplayAlert("РћС€РёР±РєР°", error, "OK");
+        }
     }
-    private bool ValidatePassword(string password)
+
+    // РџРѕРєР°Р·Р°С‚СЊ РїРѕР»СЏ РІРІРѕРґР° РєРѕРґР° Рё РїР°СЂРѕР»СЏ
+    private void ShowVerificationFields()
     {
-        // Пароль должен содержать 8-30 символов, хотя бы одну заглавную, одну строчную букву, цифру и спецсимвол
-        return Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,30}$");
+        CodeLabel.IsVisible = true;
+        CodeEntry.IsVisible = true;
+        NewPasswordLabel.IsVisible = true;
+        NewPassword.IsVisible = true;
+        ConfirmPasswordLabel.IsVisible = true;
+        ConfirmPassword.IsVisible = true;
+        PasswordHint.IsVisible = true;
+        ResetPasswordButton.IsVisible = true;
+    }
+
+    // Р—Р°РїСѓСЃРє С‚Р°Р№РјРµСЂР° РґР»СЏ РїРѕРІС‚РѕСЂРЅРѕР№ РѕС‚РїСЂР°РІРєРё РєРѕРґР°
+    private async void StartTimer()
+    {
+        int seconds = 60;
+        SendCodeButton.IsEnabled = false;
+        TimerLabel.IsVisible = true;
+
+        while (seconds >= 0)
+        {
+            TimerLabel.Text = $"РџРѕРІС‚РѕСЂРёС‚СЊ С‡РµСЂРµР· {seconds}s";
+            await Task.Delay(1000);
+            seconds--;
+        }
+
+        SendCodeButton.IsEnabled = true;
+        TimerLabel.IsVisible = false;
+    }
+
+    // РЎР±СЂРѕСЃ РїР°СЂРѕР»СЏ
+    private async void ResetPasswordClicked(object sender, EventArgs e)
+    {
+        string code = CodeEntry.Text;
+        string newPassword = NewPassword.Text;
+        string confirmPassword = ConfirmPassword.Text;
+
+        if (string.IsNullOrWhiteSpace(code) ||
+            string.IsNullOrWhiteSpace(newPassword) ||
+            string.IsNullOrWhiteSpace(confirmPassword))
+        {
+            await DisplayAlert("РћС€РёР±РєР°", "Р—Р°РїРѕР»РЅРёС‚Рµ РІСЃРµ РїРѕР»СЏ", "OK");
+            return;
+        }
+
+        if (newPassword != confirmPassword)
+        {
+            await DisplayAlert("РћС€РёР±РєР°", "РџР°СЂРѕР»Рё РЅРµ СЃРѕРІРїР°РґР°СЋС‚", "OK");
+            return;
+        }
+
+        if (!ValidatePassword(newPassword))
+        {
+            await DisplayAlert("РћС€РёР±РєР°", "РџР°СЂРѕР»СЊ РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ С‚СЂРµР±РѕРІР°РЅРёСЏРј", "OK");
+            return;
+        }
+
+        var model = new
+        {
+            Phone = _tempPhoneNumber,
+            Code = code,
+            NewPassword = newPassword
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"{ApiUrl}reset-password", model);
+
+        if (response.IsSuccessStatusCode)
+        {
+            await DisplayAlert("РЈСЃРїРµС…", "РџР°СЂРѕР»СЊ РёР·РјРµРЅС‘РЅ", "OK");
+            await Navigation.PopAsync();
+            ClearFields();
+        }
+        else
+        {
+            var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            await DisplayAlert("РћС€РёР±РєР°", error?.Values.FirstOrDefault() ?? "РќРµРёР·РІРµСЃС‚РЅР°СЏ РѕС€РёР±РєР°", "OK");
+        }
+    }
+
+    // Р’Р°Р»РёРґР°С†РёСЏ РїР°СЂРѕР»СЏ
+    private bool ValidatePassword(string password) =>
+        Regex.IsMatch(password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,30}$");
+
+    // РћС‡РёСЃС‚РєР° РїРѕР»РµР№ РІРІРѕРґР°
+    private void ClearFields()
+    {
+        PhoneEntry.Text = string.Empty;
+        CodeEntry.Text = string.Empty;
+        NewPassword.Text = string.Empty;
+        ConfirmPassword.Text = string.Empty;
+        ErrorLabel.IsVisible = false;
     }
 }

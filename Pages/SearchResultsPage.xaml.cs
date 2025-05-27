@@ -22,24 +22,24 @@ public partial class SearchResultsPage : ContentPage
     {
         if (e.Item is User user)
         {
-            // Создаем новый чат с выбранным пользователем
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             var newChat = new ChatCreationRequest
             {
                 ChatName = user.Username,
                 UserIds = new List<int> { _userId, user.UserId }
             };
 
-            // Сохраняем чат и участников в базе данных
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             var chatId = await SaveChatAndMembers(newChat);
 
             if (chatId != -1)
             {
-                // Переходим на страницу чата
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
                 await Navigation.PushAsync(new ChatPage(_userId, chatId));
             }
             else
             {
-                await DisplayAlert("Ошибка", "Не удалось создать чат", "OK");
+                await DisplayAlert("пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ", "OK");
             }
         }
     }
@@ -55,7 +55,7 @@ public partial class SearchResultsPage : ContentPage
             return createdChat.ChatId;
         }
 
-        return -1; // В случае ошибки
+        return -1; // пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     }
 }
 

@@ -15,8 +15,8 @@ public partial class LoginPage : ContentPage
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
-        var login = LoginEntry.Text;
-        var password = PasswordEntry.Text;
+        var login = Uri.EscapeDataString(LoginEntry.Text);
+        var password = Uri.EscapeDataString(PasswordEntry.Text);
 
         var response = await _httpClient.GetAsync($"{ApiUrl}authorization?login={login}&password={password}");
         if (response.IsSuccessStatusCode)
@@ -26,11 +26,10 @@ public partial class LoginPage : ContentPage
         }
         else
         {
-            await DisplayAlert("Ошибка", "Неверный логин или пароль", "OK");
+            await DisplayAlert("РћС€РёР±РєР°", "РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° РїСЂРё РїРѕРїС‹С‚РєРµ Р°РІС‚РѕСЂРёР·Р°С†РёРё", "OK");
         }
     }
 
-    // Регистрация
     private async void OnRegisterClicked(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new RegisterPage());
