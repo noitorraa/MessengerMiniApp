@@ -12,7 +12,7 @@
 
             <!-- 1. Картинка -->
             <Image Grid.Row="0"
-                   Source="Colleagues_at_an_online_meeting.png"
+                   Source="colleagues_at_an_online_meeting.png"
                    Aspect="AspectFill"
                    HeightRequest="200"
                    HorizontalOptions="Fill"
@@ -22,11 +22,11 @@
             <!-- 2. Кнопка "Назад" -->
             <Button Grid.Row="0"
                     Text="&lt;"
-                    FontSize="24"
+                    FontSize="40"
                     TextColor="{DynamicResource White}"
                     BackgroundColor="Transparent"
                     HorizontalOptions="Start"
-                    VerticalOptions="Start"
+                    VerticalOptions="Center"
                     Clicked="OnBackClicked" />
 
             <!-- 3. Форма ввода -->
@@ -37,10 +37,10 @@
 
                 <!-- Логин -->
                 <StackLayout Spacing="4">
-<Border BackgroundColor="{DynamicResource InputBackground}"
-       Padding="12"
-       StrokeThickness="0"
-       StrokeShape="RoundRectangle 6">
+                     <Border BackgroundColor="{DynamicResource InputBackground}"
+                            Padding="12"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 6">
                         <Grid ColumnDefinitions="Auto,*">
                             <BoxView WidthRequest="2"
                                      HeightRequest="24"
@@ -56,7 +56,7 @@
                                    Margin="8,0"
                                    BackgroundColor="Transparent" />
                         </Grid>
-</Border>
+                     </Border>
                     <Label Text="Логин должен содержать больше 3 символов"
                            FontSize="12"
                            TextColor="{DynamicResource SupportingTextColor}"
@@ -65,10 +65,10 @@
 
                 <!-- Телефон -->
                 <StackLayout Spacing="4">
-<Border BackgroundColor="{DynamicResource InputBackground}"
-       Padding="12"
-       StrokeThickness="0"
-       StrokeShape="RoundRectangle 6">
+                     <Border BackgroundColor="{DynamicResource InputBackground}"
+                            Padding="12"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 6">
                         <Grid ColumnDefinitions="Auto,*">
                             <BoxView WidthRequest="2"
                                      HeightRequest="24"
@@ -85,7 +85,7 @@
                                    Margin="8,0"
                                    BackgroundColor="Transparent" />
                         </Grid>
-</Border>
+                     </Border>
                     <Label Text="Номер телефона должен начинаться с 7"
                            FontSize="12"
                            TextColor="{DynamicResource SupportingTextColor}"
@@ -94,10 +94,10 @@
 
                 <!-- Пароль -->
                 <StackLayout Spacing="4">
-<Border BackgroundColor="{DynamicResource InputBackground}"
-       Padding="12"
-       StrokeThickness="0"
-       StrokeShape="RoundRectangle 6">
+                     <Border BackgroundColor="{DynamicResource InputBackground}"
+                            Padding="12"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 6">
                         <Grid ColumnDefinitions="Auto,*">
                             <BoxView WidthRequest="2"
                                      HeightRequest="24"
@@ -114,7 +114,7 @@
                                    Margin="8,0"
                                    BackgroundColor="Transparent" />
                         </Grid>
-</Border>
+                     </Border>
                     <Label Text="Пароль должен содержать 8-30 символов, включая заглавные, строчные буквы, цифры и спецсимволы"
                            FontSize="12"
                            TextColor="{DynamicResource SupportingTextColor}"
@@ -123,10 +123,10 @@
 
                 <!-- Подтверждение пароля -->
                 <StackLayout Spacing="4">
-<Border BackgroundColor="{DynamicResource InputBackground}"
-       Padding="12"
-       StrokeThickness="0"
-       StrokeShape="RoundRectangle 6">
+                     <Border BackgroundColor="{DynamicResource InputBackground}"
+                            Padding="12"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 6">
                         <Grid ColumnDefinitions="Auto,*">
                             <BoxView WidthRequest="2"
                                      HeightRequest="24"
@@ -143,7 +143,7 @@
                                    Margin="8,0"
                                    BackgroundColor="Transparent" />
                         </Grid>
-</Border>
+                     </Border>
                     <Label Text="Пароли должны совпадать"
                            FontSize="12"
                            TextColor="{DynamicResource SupportingTextColor}"

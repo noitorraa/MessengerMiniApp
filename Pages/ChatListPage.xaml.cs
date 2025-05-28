@@ -64,22 +64,22 @@ namespace MessengerMiniApp.Pages
             }
         }
 
-private string GetChatName(List<UserDto>? members, int currentUserId)
-{
-    if (members == null || members.Count == 0)
-        return "Неизвестный чат";
+        private string GetChatName(List<UserDto>? members, int currentUserId)
+        {
+            if (members == null || members.Count == 0)
+                return "Неизвестный чат";
 
-    if (members.Count == 1)
-        return "Произошла ошибка при создании чата, удалите чат и создайте заново";
+            if (members.Count == 1)
+                return "Произошла ошибка при создании чата, удалите чат и создайте заново";
 
-    if (members.Count == 2)
-    {
-        var user = members.FirstOrDefault(u => u?.UserId != currentUserId);
-        return user?.Username ?? string.Empty;
-    }
+            if (members.Count == 2)
+            {
+                var user = members.FirstOrDefault(u => u?.UserId != currentUserId);
+                return user?.Username ?? string.Empty;
+            }
 
-    return string.Join(", ", members.Where(u => u != null).Select(u => u.Username ?? string.Empty));
-}
+            return string.Join(", ", members.Where(u => u != null).Select(u => u.Username ?? string.Empty));
+        }
 
         private async Task ConnectToSignalR()
         {
@@ -115,33 +115,32 @@ private string GetChatName(List<UserDto>? members, int currentUserId)
             }
         }
 
-        private async void OnSearchButtonPressed(object sender, EventArgs e)
+        private async void OnSearchButtonClicked(object sender, EventArgs e)
         {
-            var searchQuery = searchBar.Text;
-            if (string.IsNullOrWhiteSpace(searchQuery))
-            {
-                await DisplayAlert("Ошибка", "Введите искомый логин", "OK");
-                return;
-            }
+            var image = sender as Image;
+
+            // Анимация уменьшения при нажатии
+            await image.ScaleTo(0.95, 50, Easing.SinOut);
+            await image.ScaleTo(1, 50, Easing.SinIn);
 
             try
             {
-                var response = await _httpClient.GetAsync($"{ApiUrl}search?login={searchQuery}");
+                var response = await _httpClient.GetAsync($"{ApiUrl}users");
                 if (response.IsSuccessStatusCode)
                 {
                     var users = JsonConvert.DeserializeObject<List<User>>(await response.Content.ReadAsStringAsync());
-                    if (users != null && users.Any())
+                    if (users != null)
                     {
-                        await Navigation.PushAsync(new SearchResultsPage(users, _userId));
+                        await Navigation.PushAsync(new SearchPage(users, _userId));
                     }
                     else
                     {
-                        await DisplayAlert("Пользователь не найден", "Удостоверьтесь в правильности написания логина попробуйте заново", "OK");
+                        await DisplayAlert("Ошибка", "Не удалось загрузить список пользователей", "OK");
                     }
                 }
                 else
                 {
-                    await DisplayAlert("Ошибка", "На сервере произошла ошибка при поиске пользователя", "OK");
+                    await DisplayAlert("Ошибка", "На сервере произошла ошибка при загрузке пользователей", "OK");
                 }
             }
             catch (Exception ex)
@@ -197,6 +196,26 @@ private string GetChatName(List<UserDto>? members, int currentUserId)
             {
                 await DisplayAlert("Ошибка", ex.Message, "OK");
             }
+        }
+
+        private void OnBackClicked(object sender, EventArgs e)
+        {
+            // Нужно реализовать возврат на страницу авторизации
+        }
+
+        private void OnThemeToggled(object sender, ToggledEventArgs e)
+        {   
+            // Потом нужно будет добавить функционал смены темы приложения 
+        }
+
+private async void OnStatusTabClicked(object sender, EventArgs e)
+{
+    await Navigation.PushAsync(new StatusPage(_userId));
+}
+
+        private void OnChatsTabClicked(object sender, EventArgs e)
+        {
+            // Наверное тут ничего не нужно делать? так как находясь на этой же странице мне не перейти на эту страницу
         }
     }
 
