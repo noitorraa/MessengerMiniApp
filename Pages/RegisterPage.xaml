@@ -26,7 +26,7 @@
                     TextColor="{DynamicResource White}"
                     BackgroundColor="Transparent"
                     HorizontalOptions="Start"
-                    VerticalOptions="Center"
+                    VerticalOptions="Start"
                     Clicked="OnBackClicked" />
 
             <!-- 3. Форма ввода -->

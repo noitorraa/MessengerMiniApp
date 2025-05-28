@@ -84,57 +84,70 @@
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="30,0,0,0" />
                 </Border.StrokeShape>
-                
-                <CollectionView
-                    x:Name="searchResultsListView"
-                    SelectionMode="Single"
-                    SelectionChanged="OnUserTapped"
-                    Margin="0"
-                    BackgroundColor="White">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <StackLayout Spacing="0">
-                                <Grid Padding="20,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="60" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
 
-                                    <Image
-                                        Grid.Column="0"
-                                        Source="{Binding avatar}"
-                                        WidthRequest="50"
-                                        HeightRequest="50"
-                                        Aspect="AspectFill"
-                                        VerticalOptions="Center"
-                                        HorizontalOptions="Center"
-                                        Clip="Ellipse" />
+                <!-- Используем Grid для наложения ActivityIndicator поверх CollectionView -->
+                <Grid>
+                    <!-- CollectionView с результатами -->
+                    <CollectionView
+                        x:Name="searchResultsListView"
+                        SelectionMode="Single"
+                        SelectionChanged="OnUserTapped"
+                        Margin="0"
+                        BackgroundColor="White">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <StackLayout Spacing="0">
+                                    <Grid Padding="20,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <StackLayout
-                                        Grid.Column="1"
-                                        Orientation="Vertical"
-                                        VerticalOptions="Center"
-                                        Spacing="2">
-                                        <Label
-                                            Text="{Binding login}"
-                                            FontAttributes="Bold"
-                                            FontSize="16"
-                                            TextColor="{DynamicResource TextColor}" />
-                                        <Label
-                                            Text="Начать диалог"
-                                            FontSize="14"
-                                            TextColor="{DynamicResource SupportingTextColor}" />
-                                    </StackLayout>
-                                </Grid>
+                                        <Image
+                                            Grid.Column="0"
+                                            Source="{Binding avatar}"
+                                            WidthRequest="50"
+                                            HeightRequest="50"
+                                            Aspect="AspectFill"
+                                            VerticalOptions="Center"
+                                            HorizontalOptions="Center"
+                                            Clip="Ellipse" />
 
-                                <BoxView
-                                    HeightRequest="1"
-                                    BackgroundColor="{DynamicResource Gray300}"
-                                    HorizontalOptions="Fill" />
-                            </StackLayout>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                                        <StackLayout
+                                            Grid.Column="1"
+                                            Orientation="Vertical"
+                                            VerticalOptions="Center"
+                                            Spacing="2">
+                                            <Label
+                                                Text="{Binding login}"
+                                                FontAttributes="Bold"
+                                                FontSize="16"
+                                                TextColor="{DynamicResource TextColor}" />
+                                            <Label
+                                                Text="Начать диалог"
+                                                FontSize="14"
+                                                TextColor="{DynamicResource SupportingTextColor}" />
+                                        </StackLayout>
+                                    </Grid>
+
+                                    <BoxView
+                                        HeightRequest="1"
+                                        BackgroundColor="{DynamicResource Gray300}"
+                                        HorizontalOptions="Fill" />
+                                </StackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- Индикатор загрузки -->
+                    <ActivityIndicator
+                        x:Name="searchActivityIndicator"
+                        IsVisible="False"
+                        IsRunning="False"
+                        Color="{DynamicResource Primary}"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center" />
+                </Grid>
             </Border>
         </Grid>
         

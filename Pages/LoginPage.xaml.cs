@@ -37,7 +37,7 @@ private async void OnLoginClicked(object sender, EventArgs e)
     if (response.IsSuccessStatusCode)
     {
         var user = JsonConvert.DeserializeObject<User>(await response.Content.ReadAsStringAsync());
-        await Navigation.PushAsync(new ChatListPage(user.UserId));
+        await Navigation.PushAsync(new CombinedPage(user.UserId));
     }
     else
     {
