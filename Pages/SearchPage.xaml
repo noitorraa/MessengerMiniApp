@@ -63,7 +63,7 @@
             <StackLayout
                 Grid.Row="1"
                 Padding="20,10"
-                BackgroundColor="{DynamicResource Secondary}">
+                BackgroundColor="{DynamicResource White}">
                 <Entry
                     x:Name="SearchEntry"
                     Placeholder="Поиск..."
@@ -81,9 +81,6 @@
                 Grid.Row="2"
                 StrokeThickness="0"
                 BackgroundColor="White">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="30,0,0,0" />
-                </Border.StrokeShape>
 
                 <!-- Используем Grid для наложения ActivityIndicator поверх CollectionView -->
                 <Grid>

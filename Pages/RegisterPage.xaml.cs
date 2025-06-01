@@ -84,7 +84,7 @@ namespace MessengerMiniApp.Pages
 
         private void OnBackClicked(object sender, EventArgs e)
         {
-
+            Navigation.PopAsync();
         }
 
         private async void OnRegisterClicked(object sender, EventArgs e)

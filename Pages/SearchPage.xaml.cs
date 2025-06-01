@@ -13,7 +13,7 @@ namespace MessengerMiniApp.Pages
     {
         private readonly ObservableCollection<User> _searchResults = new();
         private readonly HttpClient _httpClient = new();
-        private readonly string _apiUrl = "https://noitorraa-messengerserver-c2cc.twc1.net/api/users/ ";
+        private readonly string _apiUrl = "https://noitorraa-messengerserver-c2cc.twc1.net/api/users/";
         private readonly int _userId;
         private CancellationTokenSource _searchCts = new();
         private bool _isSearching = false;
@@ -99,7 +99,6 @@ namespace MessengerMiniApp.Pages
 
         private void ShowLoadingIndicator()
         {
-            // Предположим, что вы добавили ActivityIndicator с именем searchActivityIndicator
             searchActivityIndicator.IsVisible = true;
             searchActivityIndicator.IsRunning = true;
         }
