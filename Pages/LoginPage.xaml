@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MessengerMiniApp.Pages.LoginPage"
              Title="LoginPage"
+             NavigationPage.HasNavigationBar="False"
              BackgroundColor="{DynamicResource Primary}">
 
 
@@ -95,8 +96,7 @@
                         BackgroundColor="{DynamicResource Secondary}"
                         CornerRadius="100"
                         HeightRequest="60"
-                        WidthRequest="200"
-                        HorizontalOptions="Center"
+                        HorizontalOptions="Fill"
                         Clicked="OnLoginClicked" />
             </StackLayout>
 

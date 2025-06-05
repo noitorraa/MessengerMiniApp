@@ -5,22 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MessengerMiniApp
+namespace MessengerMiniApp.Converters
 {
-    public class NullToVisibilityConverter : IValueConverter
+    public class StatusToTextConverter : IValueConverter
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            // Инверсия (для скрытия текста при наличии файла)
-            bool invert = parameter?.ToString() == "Inverse";
+            if (value is int status)
+            {
+                return status switch
+                {
+                    0 => "Sent",      // Sent status
+                    1 => "Delivered", // Delivered status
+                    2 => "Read",      // Read status
+                    _ => "Unknown"    // Fallback for unknown status
+                };
+            }
 
-            // Основная логика
-            bool isVisible = value != null;
-
-            if (invert)
-                isVisible = !isVisible;
-
-            return isVisible ? Visibility.Visible : Visibility.Collapsed;
+            return "Unknown";
         }
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

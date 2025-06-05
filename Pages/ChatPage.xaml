@@ -1,88 +1,203 @@
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:MessengerMiniApp"
-             x:Class="MessengerMiniApp.Pages.ChatPage"
-             x:Name="chatPage"
-             Title="Chat"
-             BackgroundColor="{DynamicResource PrimaryColor}">
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:behaviors="clr-namespace:MessengerMiniApp.Behaviors"
+    xmlns:conv="clr-namespace:MessengerMiniApp.Converters"
+    x:Class="MessengerMiniApp.Pages.ChatPage"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="{DynamicResource Primary}">
 
-    <Grid RowDefinitions="*, Auto" ColumnDefinitions="*" Padding="10">
-        <!-- Список сообщений -->
-        <CollectionView x:Name="MessagesCollectionView" Grid.Row="0" Grid.Column="0"
-                        BackgroundColor="DarkSlateGrey" SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <StackLayout Padding="10" Orientation="Horizontal"
-                                 VerticalOptions="Center"
-                                 HorizontalOptions="{Binding UserID, Converter={StaticResource IsCurrentUserConverter}, FallbackValue=Start}">
-                        <!-- Выравнивание в зависимости от отправителя -->
-                        <StackLayout.Triggers>
-                            <DataTrigger TargetType="StackLayout"
-                                         Binding="{Binding UserID, Converter={StaticResource IsCurrentUserConverter}}"
-                                         Value="True">
-                                <Setter Property="HorizontalOptions" Value="End" />
-                            </DataTrigger>
-                        </StackLayout.Triggers>
+    <Grid RowDefinitions="Auto, *, Auto">
 
-                        <!-- Каркас сообщения -->
-                        <Border Stroke="LightGray"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 10"
-                                Padding="10"
-                                BackgroundColor="{Binding UserID, Converter={StaticResource UserIdToColorConverter}}"
-                                MaximumWidthRequest="250">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-
-                                <!-- Текст сообщения -->
-                                <Label Text="{Binding Content}"
-                                       IsVisible="{Binding FileId, TargetNullValue=true}" />
-
-                                <!-- Отображение файлов -->
-                                <StackLayout IsVisible="{Binding FileId, TargetNullValue=false}">
-                                    <Image Source="{Binding FileUrl}"
-                                           IsVisible="{Binding FileType, StringFormat='image', TargetNullValue=false}" />
-                                    <Button Text="Скачать файл"
-                                            Command="{Binding Source={x:Reference chatPage}, Path=DownloadFileCommand}"
-                                            CommandParameter="{Binding FileUrl}"
-                                            IsVisible="{Binding FileType, StringFormat='file', TargetNullValue=true}" />
-                                </StackLayout>
-
-                                <!-- Время отправки и статус -->
-                                <StackLayout Grid.Row="1" Orientation="Horizontal" HorizontalOptions="End" Spacing="5">
-                                    <Label Text="{Binding CreatedAt, StringFormat='{0:HH:mm}'}"
-                                           TextColor="LightGray" FontSize="12" />
-                                    <Label Text="{Binding Status, Converter={StaticResource StatusToTextConverter}}"
-                                           TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
-                                           IsVisible="{Binding UserID, Converter={StaticResource IsOutgoingMessageConverter}}" />
-                                </StackLayout>
-                            </Grid>
-                        </Border>
-                    </StackLayout>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
-        <!-- Поле ввода текста и кнопки -->
-        <Grid Grid.Row="1" Grid.Column="0" Padding="10"
-              BackgroundColor="{DynamicResource SecondaryColor}">
+        <!-- ====== Шапка чата (row 0) ====== -->
+        <Grid Grid.Row="0" Padding="20,10" BackgroundColor="#6A4B9C">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button Text="📎" Clicked="OnAttachClicked" BackgroundColor="Transparent"
-                    TextColor="White" FontSize="24" Padding="10" Grid.Column="0" />
-            <Entry x:Name="MessageEntry" Placeholder="Type a message" PlaceholderColor="LightGray"
-                   TextColor="White" BackgroundColor="{DynamicResource EntryBackgroundColor}"
-                   Margin="10,0" Grid.Column="1" />
-            <Button Text="Send" Clicked="OnSendClicked"
-                    BackgroundColor="{DynamicResource AccentColor}" TextColor="White"
-                    CornerRadius="10" Padding="10" Grid.Column="2" />
+
+            <!-- Кнопка «Назад» -->
+            <Button Text="‹"
+                    FontSize="40"
+                    TextColor="White"
+                    BackgroundColor="Transparent"
+                    WidthRequest="40"
+                    HeightRequest="40"
+                    Padding="0"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Start"
+                    Clicked="OnBackButtonClicked"/>
+
+            <!-- Информация о пользователе (Avatar, Username, Status) -->
+            <!-- Предположим, что ChatViewModel содержит свойства PeerAvatar, PeerUsername, PeerStatus -->
+            <StackLayout Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalOptions="Center">
+                <Frame WidthRequest="50"
+                       HeightRequest="50"
+                       CornerRadius="25"
+                       Padding="0"
+                       IsClippedToBounds="True"
+                       BackgroundColor="Transparent"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Center">
+                    <Image Source="{Binding PeerAvatar}"
+                           Aspect="AspectFill"
+                           VerticalOptions="Fill"
+                           HorizontalOptions="Fill"/>
+                </Frame>
+                <StackLayout Spacing="0" VerticalOptions="Center">
+                    <Label Text="{Binding PeerUsername}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="White"/>
+                    <Label Text="{Binding PeerStatus}"
+                           FontSize="12"
+                           TextColor="#D6D6D6"/>
+                </StackLayout>
+            </StackLayout>
+        </Grid>
+
+        <!-- ====== Область сообщений (row 1) ====== -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Margin="20,0">
+                <CollectionView x:Name="MessagesCollectionView"
+                                ItemsSource="{Binding Messages}"
+                                SelectionMode="None">
+                    <!-- Пустой текст, если сообщений нет -->
+                    <CollectionView.EmptyView>
+                        <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
+                            <Label Text="Нет сообщений"
+                                   TextColor="#888"
+                                   FontSize="14"
+                                   HorizontalTextAlignment="Center"/>
+                        </StackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="10,5">
+
+                                <!-- Пузырёк сообщения -->
+                                <Frame CornerRadius="20"
+                                       Padding="15"
+                                       HasShadow="False"
+                                       BackgroundColor="{Binding UserID, 
+                                                            Converter={StaticResource UserIdToColorConverter},
+                                                            ConverterParameter={Binding Source={x:Reference ChatPage}, Path=BindingContext.CurrentUserId}}"
+                                       HorizontalOptions="{Binding UserID, 
+                                                            Converter={StaticResource UserIdToAlignmentConverter},
+                                                            ConverterParameter={Binding Source={x:Reference ChatPage}, Path=BindingContext.CurrentUserId}}">
+
+                                    <!-- FadeInBehavior для анимации появления -->
+                                    <Frame.Behaviors>
+                                        <behaviors:FadeInBehavior />
+                                    </Frame.Behaviors>
+
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Текст сообщения / имя файла -->
+                                        <Label Text="{Binding Content}"
+                                               LineBreakMode="WordWrap"
+                                               TextColor="White"/>
+
+                                        <!-- Секция времени и статуса (рядом с галочкой) -->
+                                        <Grid Grid.Row="1"
+                                              Margin="0,5,0,0"
+                                              HorizontalOptions="{Binding UserID, 
+                                                           Converter={StaticResource UserIdToAlignmentConverter},
+                                                           ConverterParameter={Binding Source={x:Reference ChatPage}, Path=BindingContext.CurrentUserId}}">
+
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Время -->
+                                            <Label Text="{Binding Time}"
+                                                   Grid.Column="0"
+                                                   FontSize="12"
+                                                   TextColor="#D6D6D6"/>
+
+                                            <!-- Пустая колонка Grid.Column="1" для отступа -->
+
+                                            <!-- Галочка статуса (показываем, если это наше сообщение и статус >= Delivered) -->
+                                            <Label Text="✓"
+                                                   Grid.Column="2"
+                                                   FontSize="14"
+                                                   TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                                   IsVisible="{Binding Status, Converter={StaticResource StatusToTextConverter}, ConverterParameter='Delivered'}"/>
+                                        </Grid>
+                                    </Grid>
+                                </Frame>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ====== Панель ввода (row 2) ====== -->
+        <Grid Grid.Row="2"
+              BackgroundColor="#F3CBD8"
+              Padding="15,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Кнопка прикрепить файл -->
+            <ImageButton Source="attachment_icon.png"
+                         Grid.Column="0"
+                         WidthRequest="24"
+                         HeightRequest="24"
+                         BackgroundColor="Transparent"
+                         VerticalOptions="Center"
+                         HorizontalOptions="Center"
+                         Command="{Binding AttachFileCommand}"/>
+
+            <!-- Текстовое поле для ввода -->
+            <Entry Grid.Column="1"
+                   Text="{Binding NewMessageText}"
+                   Placeholder="Введите сообщение..."
+                   PlaceholderColor="#BEBEBE"
+                   BackgroundColor="White"
+                   VerticalOptions="Center"
+                   HeightRequest="40"
+                   Completed="OnEntryCompleted"/>
+
+            <!-- Кнопка «Send» -->
+            <Button Text="Send"
+                    Grid.Column="2"
+                    BackgroundColor="Transparent"
+                    TextColor="#6A4B9C"
+                    FontAttributes="Bold"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    WidthRequest="60"
+                    HeightRequest="40"
+                    Command="{Binding SendMessageCommand}"/>
+
+            <!-- (Опционально) Кнопка «Скачать файл» — показывается, когда в поле ввода попадает файл
+                 Мы предлагаем её показывать только тогда, когда NewMessageText – это URL файла, 
+                 но проще оставить её боковой кнопкой для теста -->
+            <ImageButton Source="download_icon.png"
+                         Grid.Column="3"
+                         WidthRequest="24"
+                         HeightRequest="24"
+                         BackgroundColor="Transparent"
+                         VerticalOptions="Center"
+                         HorizontalOptions="Center"
+                         Command="{Binding DownloadFileCommand}"
+                         CommandParameter="{Binding SelectedFileUrl}"
+                         IsVisible="{Binding SelectedFileUrl, Converter={StaticResource NullToVisibilityConverter}}"/>
         </Grid>
     </Grid>
 </ContentPage>

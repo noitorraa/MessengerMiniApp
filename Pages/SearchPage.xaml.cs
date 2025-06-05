@@ -109,19 +109,25 @@ namespace MessengerMiniApp.Pages
             searchActivityIndicator.IsRunning = false;
         }
 
-        private async void OnUserTapped(object sender, ItemTappedEventArgs e)
+        private async void OnUserTapped(object sender, SelectionChangedEventArgs e)
         {
-            if (e.Item is User selectedUser)
+            // Получаем выбранного пользователя
+            var selectedUser = e.CurrentSelection.FirstOrDefault() as User;
+            if (selectedUser == null)
+                return;
+
+            // Сразу сбрасываем выделение, чтобы следующий тап по тому же элементу тоже сработал
+            ((CollectionView)sender).SelectedItem = null;
+
+            // Пытаемся создать (или получить) чат
+            var chatId = await SaveChatAndMembers(selectedUser);
+            if (chatId != -1)
             {
-                var chatId = await SaveChatAndMembers(selectedUser);
-                if (chatId != -1)
-                {
-                    await Navigation.PushAsync(new ChatPage(_userId, chatId));
-                }
-                else
-                {
-                    await DisplayAlert("Ошибка", "Не удалось создать чат", "OK");
-                }
+                await Navigation.PushAsync(new ChatPage(_userId, chatId));
+            }
+            else
+            {
+                await DisplayAlert("Ошибка", "Не удалось создать чат", "OK");
             }
         }
 

@@ -54,13 +54,9 @@ public partial class RecoveryPage : ContentPage
     // Показать поля ввода кода и пароля
     private void ShowVerificationFields()
     {
-        CodeLabel.IsVisible = true;
-        CodeEntry.IsVisible = true;
-        NewPasswordLabel.IsVisible = true;
-        NewPassword.IsVisible = true;
-        ConfirmPasswordLabel.IsVisible = true;
-        ConfirmPassword.IsVisible = true;
-        PasswordHint.IsVisible = true;
+        CodeStackLayout.IsVisible = true;
+        PasswordStackLayout.IsVisible = true;
+        ConfirmPasswordStackLayout.IsVisible = true;
         ResetPasswordButton.IsVisible = true;
     }
 
@@ -143,5 +139,10 @@ public partial class RecoveryPage : ContentPage
         NewPassword.Text = string.Empty;
         ConfirmPassword.Text = string.Empty;
         ErrorLabel.IsVisible = false;
+    }
+
+    private void OnBackClicked(object sender, EventArgs e)
+    {
+        Navigation.PopAsync();
     }
 }

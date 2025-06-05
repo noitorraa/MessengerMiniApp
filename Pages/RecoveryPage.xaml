@@ -2,84 +2,196 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MessengerMiniApp.Pages.RecoveryPage"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{DynamicResource Primary}"
              Title="RecoveryPage">
+
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
-            <!-- Ввод номера телефона -->
-            <Label Text="Номер телефона" FontAttributes="Bold"/>
-            <Entry x:Name="PhoneEntry"
-                   Placeholder="79123456789"
-                   Keyboard="Telephone"
-                   MaxLength="15"/>
+        <Grid RowDefinitions="Auto, Auto, Auto, Auto" Padding="16">
 
-            <!-- Кнопка отправки кода -->
-            <Button x:Name="SendCodeButton"
-                    Text="Отправить код"
-                    Clicked="SendCodeClicked"
-                    BackgroundColor="#4CAF50"
-                    TextColor="White"/>
+            <!-- 1. Заголовок -->
+            <Label Grid.Row="0"
+                   Text="MessengerApp"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   Margin="0,24,0,12" />
 
-            <!-- Отсчет времени для повторной отправки -->
-            <Label x:Name="TimerLabel"
-                    Text=""
-                    TextColor="Gray"
-                    HorizontalOptions="Center"
-                    IsVisible="False"/>
+            <!-- 2. Картинка -->
+            <Image Grid.Row="1"
+                   Source="texting_communication.png"
+                   Aspect="AspectFill"
+                   HeightRequest="200"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Center"
+                   Margin="0,0,0,24" />
 
-            <!-- Ввод кода подтверждения -->
-            <Label x:Name="CodeLabel"
-                    Text="Введите код из SMS"
-                    FontAttributes="Bold"
-                    IsVisible="False"/>
-            <Entry x:Name="CodeEntry"
-                    Placeholder="Код подтверждения"
-                    Keyboard="Numeric"
-                    MaxLength="6"
-                    IsVisible="False"/>
+            <!-- 2. Кнопка "Назад" -->
+            <Button Grid.Row="0"
+                    Text="&lt;"
+                    FontSize="40"
+                    TextColor="{DynamicResource White}"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Start"
+                    VerticalOptions="Start"
+                    Clicked="OnBackClicked" />
 
-            <!-- Ввод нового пароля -->
-            <Label x:Name="NewPasswordLabel"
-                    Text="Новый пароль"
-                    FontAttributes="Bold"
-                    IsVisible="False"/>
-            <Entry x:Name="NewPassword"
-                    Placeholder="Новый пароль"
-                    IsPassword="True"
-                    MaxLength="30"
-                    IsVisible="False"/>
+            <!-- 3. Форма -->
+            <StackLayout Grid.Row="2"
+                         Spacing="16"
+                         HorizontalOptions="Center"
+                         WidthRequest="300">
+                <!-- Ввод номера телефона -->
+                <StackLayout Spacing="4">
+                <Border BackgroundColor="{DynamicResource InputBackground}"
+                        Padding="12"
+                        StrokeShape="RoundRectangle 6">
+                        <Grid ColumnDefinitions="Auto,*">
+                        <BoxView WidthRequest="2"
+                                HeightRequest="24"
+                                Color="#65558F"
+                                VerticalOptions="Center" />
+                        <Entry Grid.Column="1"
+                                Placeholder="Номер телефона"
+                                x:Name="PhoneEntry"
+                                PlaceholderColor="{DynamicResource SupportingTextColor}"
+                                TextColor="{DynamicResource SupportingTextColor}"
+                                FontFamily="Roboto"
+                                FontSize="16"
+                                Margin="8,0"
+                                BackgroundColor="Transparent" />
+                        </Grid>
+                </Border>
+                <Label Text="Номер телефона должен содержать больше 3 символов"
+                        FontSize="12"
+                        TextColor="{DynamicResource SupportingTextColor}"
+                        HorizontalOptions="Center" />
+                </StackLayout>
 
-            <!-- Подтверждение пароля -->
-            <Label x:Name="ConfirmPasswordLabel"
-                    Text="Подтвердите пароль"
-                    FontAttributes="Bold"
-                    IsVisible="False"/>
-            <Entry x:Name="ConfirmPassword"
-                    Placeholder="Подтвердите пароль"
-                    IsPassword="True"
-                    MaxLength="30"
-                    IsVisible="False"/>
+                <!-- Кнопка отправки кода -->
+                <Button Text="Отправить код"
+                        x:Name="SendCodeButton"
+                        FontSize="20"
+                        TextColor="{DynamicResource White}"
+                        BackgroundColor="{DynamicResource Secondary}"
+                        CornerRadius="100"
+                        HeightRequest="60"
+                        HorizontalOptions="Fill"
+                        Clicked="SendCodeClicked" />
 
-            <!-- Подсказка о требованиях к паролю -->
-            <Label x:Name="PasswordHint"
-                    Text="Пароль должен содержать 8-30 символов, включая заглавные, строчные буквы, цифры и спецсимволы"
-                    TextColor="Gray"
-                    FontSize="12"
-                    IsVisible="False"/>
+<!-- Отсчет времени для повторной отправки -->
+<Label x:Name="TimerLabel"
+       Text=""
+       TextColor="{DynamicResource SupportingTextColor}"
+       HorizontalOptions="Center"
+       IsVisible="False"/>
 
-            <!-- Кнопка сброса пароля -->
-            <Button x:Name="ResetPasswordButton"
-                    Text="Сбросить пароль"
-                    Clicked="ResetPasswordClicked"
-                    BackgroundColor="#2196F3"
-                    TextColor="White"
-                    IsVisible="False"/>
+<!-- Ввод кода подтверждения -->
+<StackLayout x:Name="CodeStackLayout" Spacing="4" IsVisible="False">
+    <Border BackgroundColor="{DynamicResource InputBackground}"
+           Padding="12"
+           StrokeShape="RoundRectangle 6">
+        <Grid ColumnDefinitions="Auto,*">
+            <BoxView WidthRequest="2"
+                     HeightRequest="24"
+                     Color="#65558F"
+                     VerticalOptions="Center" />
+            <Entry Grid.Column="1"
+                   Placeholder="Код подтверждения"
+                   x:Name="CodeEntry"
+                   PlaceholderColor="{DynamicResource SupportingTextColor}"
+                   TextColor="{DynamicResource SupportingTextColor}"
+                   FontFamily="Roboto"
+                   FontSize="16"
+                   Margin="8,0"
+                   BackgroundColor="Transparent" />
+        </Grid>
+    </Border>
+    <Label x:Name="CodeLabel"
+           Text="Код подтверждения должен содержать 6 символов"
+           FontSize="12"
+           TextColor="{DynamicResource SupportingTextColor}"
+           HorizontalOptions="Center" />
+</StackLayout>
 
-            <!-- Метка для отображения ошибок -->
-            <Label x:Name="ErrorLabel"
-                    Text=""
-                    TextColor="Red"
-                    HorizontalOptions="Center"
-                    IsVisible="False"/>
-        </VerticalStackLayout>
+<!-- Ввод нового пароля -->
+<StackLayout x:Name="PasswordStackLayout" Spacing="4" IsVisible="False">
+    <Border BackgroundColor="{DynamicResource InputBackground}"
+           Padding="12"
+           StrokeShape="RoundRectangle 6">
+        <Grid ColumnDefinitions="Auto,*">
+            <BoxView WidthRequest="2"
+                     HeightRequest="24"
+                     Color="#65558F"
+                     VerticalOptions="Center" />
+            <Entry Grid.Column="1"
+                   Placeholder="Новый пароль"
+                   x:Name="NewPassword"
+                   IsPassword="True"
+                   PlaceholderColor="{DynamicResource SupportingTextColor}"
+                   TextColor="{DynamicResource SupportingTextColor}"
+                   FontFamily="Roboto"
+                   FontSize="16"
+                   Margin="8,0"
+                   BackgroundColor="Transparent" />
+        </Grid>
+    </Border>
+    <Label x:Name="NewPasswordLabel"
+           Text="Пароль должен содержать 8-30 символов, включая заглавные, строчные буквы, цифры и спецсимволы"
+           FontSize="12"
+           TextColor="{DynamicResource SupportingTextColor}"
+           HorizontalOptions="Center" />
+</StackLayout>
+
+<!-- Подтверждение пароля -->
+                <StackLayout x:Name="ConfirmPasswordStackLayout" Spacing="4" IsVisible="False">
+                    <Border BackgroundColor="{DynamicResource InputBackground}"
+           Padding="12"
+           StrokeShape="RoundRectangle 6">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <BoxView WidthRequest="2"
+                     HeightRequest="24"
+                     Color="#65558F"
+                     VerticalOptions="Center" />
+                            <Entry Grid.Column="1"
+                   Placeholder="Подтвердите пароль"
+                   x:Name="ConfirmPassword"
+                   IsPassword="True"
+                   PlaceholderColor="{DynamicResource SupportingTextColor}"
+                   TextColor="{DynamicResource SupportingTextColor}"
+                   FontFamily="Roboto"
+                   FontSize="16"
+                   Margin="8,0"
+                   BackgroundColor="Transparent" />
+                        </Grid>
+                    </Border>
+                    <Label x:Name="ConfirmPasswordLabel"
+           Text="Пароли должны совпадать"
+           FontSize="12"
+           TextColor="{DynamicResource SupportingTextColor}"
+           HorizontalOptions="Center" />
+                </StackLayout>
+
+                <!-- Кнопка сброса пароля -->
+        <Button Text="Сбросить пароль"
+                x:Name="ResetPasswordButton"
+                FontSize="20"
+                TextColor="{DynamicResource White}"
+                BackgroundColor="{DynamicResource Secondary}"
+                CornerRadius="100"
+                HeightRequest="60"
+                HorizontalOptions="Fill"
+                Clicked="ResetPasswordClicked"
+                IsVisible="False"/>
+
+        <!-- Метка для отображения ошибок -->
+        <Label x:Name="ErrorLabel"
+        Text=""
+        TextColor="{DynamicResource SupportingTextColor}"
+        HorizontalOptions="Center"
+        IsVisible="False"/>
+        </StackLayout>
+        </Grid>
     </ScrollView>
 </ContentPage>

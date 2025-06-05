@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MessengerMiniApp
+namespace MessengerMiniApp.Converters
 {
     public class IsCurrentUserConverter : IValueConverter
     {
