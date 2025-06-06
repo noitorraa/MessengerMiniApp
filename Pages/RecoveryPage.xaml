@@ -29,7 +29,7 @@
 
             <!-- 2. Кнопка "Назад" -->
             <Button Grid.Row="0"
-                    Text="&lt;"
+                    Text="‹"
                     FontSize="40"
                     TextColor="{DynamicResource White}"
                     BackgroundColor="Transparent"

@@ -5,13 +5,25 @@
     xmlns:behaviors="clr-namespace:MessengerMiniApp.Behaviors"
     xmlns:conv="clr-namespace:MessengerMiniApp.Converters"
     x:Class="MessengerMiniApp.Pages.ChatPage"
+    x:Name="PageRoot"
     NavigationPage.HasNavigationBar="False"
     BackgroundColor="{DynamicResource Primary}">
+
+    <ContentPage.Resources>
+        <conv:NullToColorConverter x:Key="NullToColorConverter" />
+        <conv:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <conv:StatusToColorConverter x:Key="StatusToColorConverter" />
+        <conv:StatusToTextConverter x:Key="StatusToTextConverter" />
+        <conv:UserIdToAlignmentConverter x:Key="UserIdToAlignmentConverter" />
+        <conv:UserIdToColorConverter x:Key="UserIdToColorConverter" />
+        <conv:IsFileMessageConverter x:Key="IsFileMessageConverter" />
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto, *, Auto">
 
         <!-- ====== Шапка чата (row 0) ====== -->
-        <Grid Grid.Row="0" Padding="20,10" BackgroundColor="#6A4B9C">
+        <Grid Grid.Row="0" Padding="20,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -25,27 +37,29 @@
                     BackgroundColor="Transparent"
                     WidthRequest="40"
                     HeightRequest="40"
-                    Padding="0"
-                    VerticalOptions="Center"
+                    Padding="0,0,20,0"
+                    VerticalOptions="Start"
                     HorizontalOptions="Start"
                     Clicked="OnBackButtonClicked"/>
 
             <!-- Информация о пользователе (Avatar, Username, Status) -->
-            <!-- Предположим, что ChatViewModel содержит свойства PeerAvatar, PeerUsername, PeerStatus -->
-            <StackLayout Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalOptions="Center">
+            <StackLayout Grid.Column="1" Orientation="Horizontal" Spacing="20" VerticalOptions="Center">
                 <Frame WidthRequest="50"
                        HeightRequest="50"
                        CornerRadius="25"
                        Padding="0"
                        IsClippedToBounds="True"
-                       BackgroundColor="Transparent"
+                       BackgroundColor="{Binding PeerAvatar, Converter={StaticResource NullToColorConverter}}"
                        VerticalOptions="Center"
                        HorizontalOptions="Center">
+                    <!-- Если PeerAvatar != null — покажем картинку, иначе просто оставим фон -->
                     <Image Source="{Binding PeerAvatar}"
                            Aspect="AspectFill"
                            VerticalOptions="Fill"
-                           HorizontalOptions="Fill"/>
+                           HorizontalOptions="Fill"
+                           IsVisible="{Binding PeerAvatar, Converter={StaticResource NullToVisibilityConverter}}"/>
                 </Frame>
+
                 <StackLayout Spacing="0" VerticalOptions="Center">
                     <Label Text="{Binding PeerUsername}"
                            FontSize="18"
@@ -58,146 +72,167 @@
             </StackLayout>
         </Grid>
 
-        <!-- ====== Область сообщений (row 1) ====== -->
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout Margin="20,0">
-                <CollectionView x:Name="MessagesCollectionView"
-                                ItemsSource="{Binding Messages}"
-                                SelectionMode="None">
-                    <!-- Пустой текст, если сообщений нет -->
-                    <CollectionView.EmptyView>
-                        <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
-                            <Label Text="Нет сообщений"
-                                   TextColor="#888"
-                                   FontSize="14"
-                                   HorizontalTextAlignment="Center"/>
-                        </StackLayout>
-                    </CollectionView.EmptyView>
+        <!-- ====== Область сообщений (row 1) с скруглёнными верхними краями ====== -->
+        <Border Grid.Row="1" StrokeThickness="0" BackgroundColor="White">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="30,30,0,0" />
+            </Border.StrokeShape>
+            <ScrollView BackgroundColor="Transparent">
+                <VerticalStackLayout>
+                    <CollectionView x:Name="MessagesCollectionView"
+                                    ItemsSource="{Binding Messages}"
+                                    SelectionMode="None">
+                        <!-- Пустой текст, если сообщений нет -->
+                        <CollectionView.EmptyView>
+                            <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
+                                <Label Text="Нет сообщений"
+                                       TextColor="#888"
+                                       FontSize="14"
+                                       HorizontalTextAlignment="Center"/>
+                            </StackLayout>
+                        </CollectionView.EmptyView>
 
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="10,5">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="10,5"
+                                      HorizontalOptions="{Binding UserID, 
+                                          Converter={StaticResource UserIdToAlignmentConverter},
+                                          ConverterParameter={x:Reference PageRoot}}">
 
-                                <!-- Пузырёк сообщения -->
-                                <Frame CornerRadius="20"
-                                       Padding="15"
-                                       HasShadow="False"
-                                       BackgroundColor="{Binding UserID, 
-                                                            Converter={StaticResource UserIdToColorConverter},
-                                                            ConverterParameter={Binding Source={x:Reference ChatPage}, Path=BindingContext.CurrentUserId}}"
-                                       HorizontalOptions="{Binding UserID, 
-                                                            Converter={StaticResource UserIdToAlignmentConverter},
-                                                            ConverterParameter={Binding Source={x:Reference ChatPage}, Path=BindingContext.CurrentUserId}}">
+                                    <!-- Пузырёк сообщения -->
+                                    <Frame CornerRadius="20"
+                                           Padding="15"
+                                           HasShadow="False"
+                                           BackgroundColor="{Binding UserID, Converter={StaticResource UserIdToColorConverter}, ConverterParameter={x:Reference PageRoot}}"
+                                           HorizontalOptions="{Binding UserID, Converter={StaticResource UserIdToAlignmentConverter}, ConverterParameter={x:Reference PageRoot}}">
 
-                                    <!-- FadeInBehavior для анимации появления -->
-                                    <Frame.Behaviors>
-                                        <behaviors:FadeInBehavior />
-                                    </Frame.Behaviors>
+                                        <!-- FadeInBehavior для анимации появления -->
+                                        <Frame.Behaviors>
+                                            <behaviors:FadeInBehavior />
+                                        </Frame.Behaviors>
 
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
 
-                                        <!-- Текст сообщения / имя файла -->
-                                        <Label Text="{Binding Content}"
-                                               LineBreakMode="WordWrap"
-                                               TextColor="White"/>
+                                            <!-- Для файловых сообщений -->
+                                            <Grid Grid.Row="0"
+                                                  IsVisible="{Binding IsFileMessage}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
 
-                                        <!-- Секция времени и статуса (рядом с галочкой) -->
-                                        <Grid Grid.Row="1"
-                                              Margin="0,5,0,0"
-                                              HorizontalOptions="{Binding UserID, 
-                                                           Converter={StaticResource UserIdToAlignmentConverter},
-                                                           ConverterParameter={Binding Source={x:Reference ChatPage}, Path=BindingContext.CurrentUserId}}">
+                                                <Image Source="file.png"
+                                                       WidthRequest="24"
+                                                       HeightRequest="24"
+                                                       VerticalOptions="Center"
+                                                       Grid.Column="0" />
 
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
+                                                <Label Text="{Binding FileName}"
+                                                       Grid.Column="1"
+                                                       VerticalOptions="Center"
+                                                       TextDecorations="Underline"
+                                                       TextColor="Blue">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer 
+                                                            Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.DownloadFileCommand}"
+                                                            CommandParameter="{Binding FileUrl}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                            </Grid>
 
-                                            <!-- Время -->
-                                            <Label Text="{Binding Time}"
-                                                   Grid.Column="0"
-                                                   FontSize="12"
-                                                   TextColor="#D6D6D6"/>
-
-                                            <!-- Пустая колонка Grid.Column="1" для отступа -->
-
-                                            <!-- Галочка статуса (показываем, если это наше сообщение и статус >= Delivered) -->
-                                            <Label Text="✓"
-                                                   Grid.Column="2"
+                                            <!-- Если это обычное текстовое сообщение -->
+                                            <Label Text="{Binding Content}"
+                                                   Grid.Row="0"
+                                                   IsVisible="{Binding IsFileMessage, Converter={StaticResource InverseBoolConverter}}"
                                                    FontSize="14"
-                                                   TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
-                                                   IsVisible="{Binding Status, Converter={StaticResource StatusToTextConverter}, ConverterParameter='Delivered'}"/>
+                                                   HorizontalOptions="Start"
+                                                   TextColor="Black" />
+
+                                            <!-- Секция времени и статуса (рядом с галочкой) -->
+                                            <Grid Grid.Row="1"
+                                                  Margin="0,5,0,0"
+                                                  HorizontalOptions="{Binding UserID, Converter={StaticResource UserIdToAlignmentConverter}, ConverterParameter={x:Reference PageRoot}}">
+
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Время -->
+                                                <Label Text="{Binding Time}"
+                                                       Grid.Column="0"
+                                                       FontSize="12"
+                                                       TextColor="Black"/>
+
+                                                <!-- Пустая колонка Grid.Column="1" для отступа -->
+
+                                                <!-- Галочка статуса -->
+                                                <Label Text="✓"
+                                                       Grid.Column="2"
+                                                       FontSize="14"
+                                                       TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                                       IsVisible="{Binding Status, Converter={StaticResource StatusToTextConverter}, ConverterParameter='Delivered'}"/>
+                                            </Grid>
                                         </Grid>
-                                    </Grid>
-                                </Frame>
-                            </Grid>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
-        </ScrollView>
+                                    </Frame>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Border>
 
         <!-- ====== Панель ввода (row 2) ====== -->
-        <Grid Grid.Row="2"
-              BackgroundColor="#F3CBD8"
-              Padding="15,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <Border Grid.Row="2"
+                StrokeThickness="0"
+                BackgroundColor="#F3CBD8">
 
-            <!-- Кнопка прикрепить файл -->
-            <ImageButton Source="attachment_icon.png"
-                         Grid.Column="0"
-                         WidthRequest="24"
-                         HeightRequest="24"
-                         BackgroundColor="Transparent"
-                         VerticalOptions="Center"
-                         HorizontalOptions="Center"
-                         Command="{Binding AttachFileCommand}"/>
+            <!-- Используем Grid, чтобы зафиксировать ширину поля ввода -->
+            <Grid Padding="16,12" ColumnSpacing="10"
+                  ColumnDefinitions="Auto,Auto,*">
 
-            <!-- Текстовое поле для ввода -->
-            <Entry Grid.Column="1"
-                   Text="{Binding NewMessageText}"
-                   Placeholder="Введите сообщение..."
-                   PlaceholderColor="#BEBEBE"
-                   BackgroundColor="White"
-                   VerticalOptions="Center"
-                   HeightRequest="40"
-                   Completed="OnEntryCompleted"/>
+                <!-- Иконка add_circle - по нажатию можно загружать файлы из галереи или другие файлы (как в телеграмме) -->
+                <ImageButton Grid.Column="0"
+                             Source="add_circle.png"
+                             WidthRequest="24"
+                             HeightRequest="24"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Start"
+                             Command="{Binding AttachFileCommand}" />
 
-            <!-- Кнопка «Send» -->
-            <Button Text="Send"
-                    Grid.Column="2"
-                    BackgroundColor="Transparent"
-                    TextColor="#6A4B9C"
-                    FontAttributes="Bold"
-                    VerticalOptions="Center"
-                    HorizontalOptions="Center"
-                    WidthRequest="60"
-                    HeightRequest="40"
-                    Command="{Binding SendMessageCommand}"/>
+                <!-- Иконка mood (смайлик) - тут по нажатию нужно открывать панель смайликов -->
+                <ImageButton Grid.Column="1"
+                             Source="mood.png"
+                             WidthRequest="24"
+                             HeightRequest="24"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Start" />
 
-            <!-- (Опционально) Кнопка «Скачать файл» — показывается, когда в поле ввода попадает файл
-                 Мы предлагаем её показывать только тогда, когда NewMessageText – это URL файла, 
-                 но проще оставить её боковой кнопкой для теста -->
-            <ImageButton Source="download_icon.png"
-                         Grid.Column="3"
-                         WidthRequest="24"
-                         HeightRequest="24"
-                         BackgroundColor="Transparent"
-                         VerticalOptions="Center"
-                         HorizontalOptions="Center"
-                         Command="{Binding DownloadFileCommand}"
-                         CommandParameter="{Binding SelectedFileUrl}"
-                         IsVisible="{Binding SelectedFileUrl, Converter={StaticResource NullToVisibilityConverter}}"/>
-        </Grid>
+                <!-- Контейнер поля ввода в звёздной колонке -->
+                <Border Grid.Column="2"
+                        BackgroundColor="#ECE6EE"
+                        VerticalOptions="Center"
+                        HorizontalOptions="FillAndExpand">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="20,20,20,20" />
+                    </Border.StrokeShape>
+
+                    <!-- Entry занимает всю доступную ширину, но не растягивается дальше экрана -->
+                    <Entry Text="{Binding NewMessageText}"
+                           Placeholder="Введите сообщение"
+                           BackgroundColor="Transparent"
+                           VerticalOptions="Center"
+                           HorizontalOptions="FillAndExpand"
+                           Margin="12,0"
+                           Completed="OnEntryCompleted" />
+                </Border>
+            </Grid>
+        </Border>
     </Grid>
 </ContentPage>

@@ -1,34 +1,41 @@
-﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:conv="clr-namespace:MessengerMiniApp.Converters"
              xmlns:local="clr-namespace:MessengerMiniApp"
              x:Class="MessengerMiniApp.App">
+
+    <!-- ЕДИНСТВЕННЫЙ ResourceDictionary -->
     <Application.Resources>
         <ResourceDictionary>
+            <conv:InverseBoolConverter x:Key="InverseBoolConverter"/>
+            <!-- 1) Сначала определяем все конвертеры -->
             <!-- Конвертер, который скрывает элемент, если привязанное значение null/пусто -->
-            <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+            <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <conv:NullToColorConverter x:Key="NullToColorConverter" />
             <!-- Преобразует статус (enum или int) в цвет для «галочки» или фона -->
-            <conv:StatusToColorConverter x:Key="StatusToColorConverter"/>
+            <conv:StatusToColorConverter x:Key="StatusToColorConverter" />
             <!-- Преобразует статус в строку («Отправлено», «Доставлено», «Прочитано» и т. д.) -->
-            <conv:StatusToTextConverter x:Key="StatusToTextConverter"/>
-            <!-- Преобразует UserID в привязку: если текущий пользователь — выровнить вправо, иначе влево -->
-            <conv:IsCurrentUserConverter x:Key="IsCurrentUserConverter"/>
+            <conv:StatusToTextConverter x:Key="StatusToTextConverter" />
             <!-- Преобразует UserID в цвет фона/текста (если нужны разные цвета для каждого собеседника) -->
-            <conv:UserIdToColorConverter x:Key="UserIdToColorConverter"/>
+            <conv:UserIdToColorConverter x:Key="UserIdToColorConverter" />
             <!-- Для выравнивания «влево/вправо» используем HorizontalOptions: -->
-            <conv:UserIdToAlignmentConverter x:Key="UserIdToAlignmentConverter"/>
-        </ResourceDictionary>
-        <ResourceDictionary>
+            <conv:UserIdToAlignmentConverter x:Key="UserIdToAlignmentConverter" />
+            <conv:IsFileMessageConverter x:Key="IsFileMessageConverter"/>
+
+            <!-- 2) Затем определяем «локальные» цвета (если они не вынесены в отдельные файлы) -->
             <Color x:Key="PrimaryColor">#222F3E</Color>
             <Color x:Key="SecondaryColor">#2C3E50</Color>
             <Color x:Key="SeparatorColor">#34495E</Color>
             <Color x:Key="ChatItemBackgroundColor">#2C3E50</Color>
             <Color x:Key="MessageBubbleColor">#794d91</Color>
-                <ResourceDictionary.MergedDictionaries>
+
+            <!-- 3) Подключаем внешние словари (Styles, Colors и т.д.) -->
+            <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
+
 </Application>

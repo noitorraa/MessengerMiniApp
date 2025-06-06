@@ -1,4 +1,5 @@
 ﻿using MessengerMiniApp.Pages;
+using MessengerMiniApp.ViewModels;
 
 namespace MessengerMiniApp
 {
@@ -13,6 +14,7 @@ namespace MessengerMiniApp
         public App()
         {
             InitializeComponent();
+            ChatViewModel.ClearCacheOnStartup();
         }
 
         /// <summary>
@@ -24,6 +26,17 @@ namespace MessengerMiniApp
         {
             // Create and return a new window with the login page as the root
             return new Window(new NavigationPage(new LoginPage()));
+        }
+
+        protected override void OnResume()
+        {
+            // Восстанавливаем соединение при возврате в приложение
+            var currentPage = Current.MainPage;
+            if (currentPage is Shell shell && shell.CurrentPage?.BindingContext is ChatViewModel vm)
+            {
+                vm.ReconnectAsync();
+            }
+            base.OnResume();
         }
     }
 }

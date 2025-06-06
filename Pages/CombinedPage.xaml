@@ -37,7 +37,7 @@
                     ColumnDefinitions="50,*,50">
                     <Button
                         Grid.Column="0"
-                        Text="&lt;"
+                        Text="‹"
                         FontSize="40"
                         TextColor="{DynamicResource White}"
                         BackgroundColor="Transparent"

@@ -2,7 +2,6 @@
 using System;
 using System.Globalization;
 using Microsoft.Maui.Controls;
-using MessengerMiniApp.Models;
 using MessengerServer.Models;
 
 namespace MessengerMiniApp.Converters

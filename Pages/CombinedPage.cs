@@ -179,7 +179,7 @@ namespace MessengerMiniApp.Pages
                 {
                     await _hubConnection.StartAsync();
                     Console.WriteLine($"SignalR: {_hubConnection.State}");
-                    await _hubConnection.InvokeAsync("RegisterUser", _userId);
+                    await _hubConnection.InvokeAsync("RegisterUser", _userId); // Такого роута нет на сервере, потом нужно будет поменять
                     Console.WriteLine($"Registered in group user_{_userId}");
                 }
             }
@@ -207,9 +207,8 @@ namespace MessengerMiniApp.Pages
                     await DisplayAlert("Ошибка", "Выбранный чат не найден", "OK");
                     return;
                 }
-                await Navigation.PushAsync(new ChatPage(_userId, selectedChat.ChatId));
+                await Navigation.PushAsync(new ChatPage(_userId, selectedChat.ChatId, selectedChat.ChatName));
             }
-
             ChatListView.SelectedItem = null;
         }
 

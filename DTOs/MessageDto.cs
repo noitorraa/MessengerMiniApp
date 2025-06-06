@@ -31,11 +31,14 @@ namespace MessengerMiniApp.DTOs
         public string? FileType { get; set; }
 
         [JsonPropertyName("fileUrl")]
-        public string? FileUrl { get; set; }
+        public string FileUrl { get; set; } = string.Empty;
+        [JsonPropertyName("fileName")]
+        public string? FileName { get; set; }
 
-        private MessageStatus _status;
+        // ↓↓↓ Изменили MessageStatus на int ↓↓↓
+        private int _status;
         [JsonPropertyName("status")]
-        public MessageStatus Status
+        public int Status
         {
             get => _status;
             set
@@ -48,16 +51,28 @@ namespace MessengerMiniApp.DTOs
             }
         }
 
-        // Вычисляемое свойство для отображения времени в формате HH:mm
+        private bool _isCached;
+        [JsonIgnore]
+        public bool IsCached
+        {
+            get => _isCached;
+            set
+            {
+                if (_isCached != value)
+                {
+                    _isCached = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         [JsonIgnore]
         public string Time => CreatedAt.ToLocalTime().ToString("HH:mm");
 
-        // Определим, является ли это мок-сообщением с файлом
         [JsonIgnore]
         public bool IsFileMessage => !string.IsNullOrWhiteSpace(FileUrl);
 
         public event PropertyChangedEventHandler PropertyChanged;
-
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

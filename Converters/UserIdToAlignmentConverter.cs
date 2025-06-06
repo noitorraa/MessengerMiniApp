@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Microsoft.Maui.Controls;
+using System.Globalization;
+using MessengerMiniApp.Pages;
+using MessengerMiniApp.ViewModels; // Добавьте это пространство имён
+
 using System.Globalization;
 using Microsoft.Maui.Controls;
 
@@ -6,19 +10,22 @@ namespace MessengerMiniApp.Converters
 {
     public class UserIdToAlignmentConverter : IValueConverter
     {
-        // Если UserID == CurrentUserId — выравниваем вправо, иначе влево.
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int userId && parameter is int currentUserId)
+            if (value is int userId && parameter is ChatPage page)
             {
-                return userId == currentUserId
-                    ? LayoutOptions.End
-                    : LayoutOptions.Start;
+                if (page.BindingContext is ChatViewModel viewModel)
+                {
+                    // Если это сообщение текущего пользователя - выравниваем по правому краю
+                    return userId == viewModel.CurrentUserId ? LayoutOptions.End : LayoutOptions.Start;
+                }
             }
             return LayoutOptions.Start;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => throw new NotImplementedException();
+        {
+            throw new NotImplementedException();
+        }
     }
 }

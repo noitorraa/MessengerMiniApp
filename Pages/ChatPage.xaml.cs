@@ -1,4 +1,3 @@
-// Pages/ChatPage.xaml.cs
 using System;
 using System.Collections.Specialized;
 using Microsoft.Maui.Controls;
@@ -10,15 +9,28 @@ namespace MessengerMiniApp.Pages
     {
         private readonly ChatViewModel _viewModel;
 
-        public ChatPage(int userId, int chatId)
+        public ChatPage(int userId, int chatId, string peerUsername)
         {
             InitializeComponent();
 
-            _viewModel = new ChatViewModel(userId, chatId);
+            _viewModel = new ChatViewModel(userId, chatId, peerUsername);
             BindingContext = _viewModel;
 
             // Подписываемся на изменение коллекции сообщений, чтобы скроллить вниз
             _viewModel.Messages.CollectionChanged += OnMessagesCollectionChanged;
+        }
+
+        private void OnMessagesCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                // Скроллим к новому сообщению
+                var last = _viewModel.Messages[^1];
+                MessagesCollectionView.Dispatcher.Dispatch(() =>
+                {
+                    MessagesCollectionView.ScrollTo(last, position: ScrollToPosition.End, animate: true);
+                });
+            }
         }
 
         protected override async void OnAppearing()
@@ -26,34 +38,24 @@ namespace MessengerMiniApp.Pages
             base.OnAppearing();
             // Загружаем историю и подключаем SignalR
             await _viewModel.InitializeAsync();
-
-            // После загрузки истории скроллим к последнему сообщению
-            if (_viewModel.Messages.Count > 0)
+            if (_viewModel != null)
             {
-                var last = _viewModel.Messages[^1];
-                MessagesCollectionView.ScrollTo(last, position: ScrollToPosition.End, animate: false);
+                await _viewModel.ReconnectAsync();
+                if (_viewModel.Messages.Count > 0)
+                {
+                    var last = _viewModel.Messages[^1];
+                    MessagesCollectionView.ScrollTo(last, position: ScrollToPosition.End, animate: false);
+                }
             }
         }
 
-        protected override void OnDisappearing()
+
+
+        protected override void OnDisappearing() // при переходе в проводник при прикреплении файла вызывается этот метод и приложение закрывается, может стоит просто как в телеграмме не переход, а доступ к галлереее сделать, где как раз таки можно также и файлы отправить
         {
             base.OnDisappearing();
             // Отписываемся, чтобы не было утечки
             _viewModel.Messages.CollectionChanged -= OnMessagesCollectionChanged;
-        }
-
-        private void OnMessagesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            // Если новые сообщения были добавлены
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                // Берём последний и скроллим с анимацией
-                var last = _viewModel.Messages[^1];
-                MessagesCollectionView.Dispatcher.Dispatch(() =>
-                {
-                    MessagesCollectionView.ScrollTo(last, position: ScrollToPosition.End, animate: true);
-                });
-            }
         }
 
         private void OnBackButtonClicked(object sender, EventArgs e)

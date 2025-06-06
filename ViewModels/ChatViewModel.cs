@@ -19,6 +19,7 @@ namespace MessengerMiniApp.ViewModels
     {
         // Для HTTP-запросов к API
         private readonly HttpClient _httpClient;
+        private string _cacheDir = Path.Combine(FileSystem.CacheDirectory, "MessengerFiles");
 
         // SignalR-хаб
         private HubConnection _hubConnection;
@@ -48,6 +49,67 @@ namespace MessengerMiniApp.ViewModels
             }
         }
 
+        private string _peerUsername;
+        public string PeerUsername
+        {
+            get => _peerUsername;
+            set
+            {
+                if (_peerUsername != value)
+                {
+                    _peerUsername = value;
+                    OnPropertyChanged(nameof(PeerUsername));
+                }
+            }
+        }
+
+        private string _peerAvatar; // тут будет URL или локальный путь к картинке
+        public string PeerAvatar
+        {
+            get => _peerAvatar;
+            set
+            {
+                if (_peerAvatar != value)
+                {
+                    _peerAvatar = value;
+                    OnPropertyChanged(nameof(PeerAvatar));
+                }
+            }
+        }
+
+        private bool _isBusy;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set
+            {
+                if (_isBusy != value)
+                {
+                    _isBusy = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private void OnPropertyChanged()
+        {
+            throw new NotImplementedException();
+        }
+
+        private string _peerStatus;
+        public string PeerStatus
+        {
+            get => _peerStatus;
+            set
+            {
+                if (_peerStatus != value)
+                {
+                    _peerStatus = value;
+                    OnPropertyChanged(nameof(PeerStatus));
+                }
+            }
+        }
+
         // Команды
         public ICommand SendMessageCommand { get; }
         public ICommand AttachFileCommand { get; }
@@ -60,10 +122,15 @@ namespace MessengerMiniApp.ViewModels
         private const string BaseApiUrl = "https://noitorraa-messengerserver-c2cc.twc1.net/api/";
         private const string HubUrl = "https://noitorraa-messengerserver-c2cc.twc1.net/chatHub";
 
-        public ChatViewModel(int userId, int chatId)
+        public ChatViewModel(int userId, int chatId, string peerUsername)
         {
+            Directory.CreateDirectory(_cacheDir);
             _userId = userId;
             _chatId = chatId;
+
+            PeerUsername = peerUsername;    // например, получить из API или со страницы чатов (там мы получаем название чата и его по сути можно и отобразить здесь)
+            PeerStatus = "Не в сети";       // или «отсутствует» и т. п. (пока не реализованы статусы, поэтому просот заглушка)
+            PeerAvatar = null;              // null → рисуем просто окружность (тоже пока не реализованы аватары)
 
             _messagesById = new Dictionary<int, MessageDto>();
             Messages = new ObservableCollection<MessageDto>();
@@ -103,7 +170,7 @@ namespace MessengerMiniApp.ViewModels
                 {
                     // Показываем Alert и возвращаемся
                     await Application.Current!.MainPage.DisplayAlert("Ошибка",
-                        $"Не удалось загрузить сообщения (код {response.StatusCode})", "OK");
+                        $"Не удалось загрузить сообщения (код {response.StatusCode})", "OK"); // это сообщение не вызывается
                     return;
                 }
 
@@ -129,7 +196,7 @@ namespace MessengerMiniApp.ViewModels
             catch (Exception ex)
             {
                 await Application.Current!.MainPage.DisplayAlert("Ошибка",
-                    $"При загрузке сообщений произошла ошибка: {ex.Message}", "OK");
+                    $"При загрузке сообщений произошла ошибка: {ex.Message}", "OK"); // вызывается эта ошибка
             }
         }
 
@@ -154,22 +221,19 @@ namespace MessengerMiniApp.ViewModels
             // При получении одиночного сообщения
             _hubConnection.On<MessageDto>("ReceiveMessage", (messageDto) =>
             {
-                // SignalR может вызывать callback не в UI-потоке, поэтому обёртка
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    // Если файл — просто заменим Content заглушкой (имя файла)
+                    // Для файловых сообщений используем имя файла
                     if (!string.IsNullOrWhiteSpace(messageDto.FileUrl))
                     {
                         messageDto.Content = $"[Файл: {System.IO.Path.GetFileName(messageDto.FileUrl)}]";
                     }
-
-                    // Добавляем в коллекцию и словарь
                     Messages.Add(messageDto);
                     _messagesById[messageDto.MessageId] = messageDto;
                 });
             });
 
-            // При пакетном обновлении статусов (Delivery/Read)
+            // Не работает
             _hubConnection.On<List<StatusDto>>("BatchUpdateStatuses", (statuses) =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
@@ -178,7 +242,7 @@ namespace MessengerMiniApp.ViewModels
                     {
                         if (_messagesById.TryGetValue(st.MessageId, out var msg))
                         {
-                            msg.Status.Status = st.Status;
+                            msg.Status = st.Status;
                         }
                     }
                 });
@@ -228,6 +292,14 @@ namespace MessengerMiniApp.ViewModels
             }
         }
 
+        public async Task ReconnectAsync()
+        {
+            if (_hubConnection?.State == HubConnectionState.Disconnected)
+            {
+                await ConnectToSignalRAsync();
+            }
+        }
+
         /// <summary>
         /// Прикрепление файла: открываем файловый диалог, отправляем на сервер, а затем через SignalR — сообщение с FileId.
         /// </summary>
@@ -235,55 +307,266 @@ namespace MessengerMiniApp.ViewModels
         {
             try
             {
-                var fileResult = await FilePicker.Default.PickAsync();
-                if (fileResult == null) return;
+                var action = await Application.Current.MainPage.DisplayActionSheet(
+                    "Прикрепить файл",
+                    "Отмена",
+                    null,
+                    "Галерея",
+                    "Документы",
+                    "Камера",
+                    "Аудио"
+                );
 
-                using var stream = await fileResult.OpenReadAsync();
-                var content = new MultipartFormDataContent();
-                var fileContent = new StreamContent(stream);
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(fileResult.ContentType);
-                content.Add(fileContent, "file", fileResult.FileName);
-
-                var response = await _httpClient.PostAsync($"users/upload/{_chatId}/{_userId}", content);
-                if (!response.IsSuccessStatusCode)
+                switch (action)
                 {
-                    await Application.Current!.MainPage.DisplayAlert("Ошибка", "Не удалось прикрепить файл", "OK");
+                    case "Галерея":
+                        await PickGalleryAsync();
+                        break;
+
+                    case "Документы":
+                        await PickFileAsync();
+                        break;
+
+                    case "Камера":
+                        await TakePhotoAsync();
+                        break;
+
+                    case "Аудио":
+                        await PickAudioAsync();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Ошибка",
+                    $"Ошибка: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task PickGalleryAsync()
+        {
+            try
+            {
+                FileResult fileResult = null;
+
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    fileResult = await FilePicker.Default.PickAsync(new PickOptions
+                    {
+                        PickerTitle = "Выберите фото",
+                        FileTypes = FilePickerFileType.Images
+                    });
+                });
+
+                if (fileResult != null)
+                {
+                    await ProcessFileAsync(fileResult);
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Ошибка",
+                    $"Ошибка при выборе фото: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task PickFileAsync()
+        {
+            try
+            {
+                FileResult fileResult = null;
+
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    fileResult = await FilePicker.Default.PickAsync(new PickOptions
+                    {
+                        PickerTitle = "Выберите документ",
+                        FileTypes = FilePickerFileType.Pdf
+                    });
+                });
+
+                if (fileResult != null)
+                {
+                    await ProcessFileAsync(fileResult);
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Ошибка",
+                    $"Ошибка при выборе документа: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task TakePhotoAsync()
+        {
+            try
+            {
+                FileResult fileResult = null;
+
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    if (MediaPicker.Default.IsCaptureSupported)
+                    {
+                        fileResult = await MediaPicker.Default.CapturePhotoAsync();
+                    }
+                });
+
+                if (fileResult != null)
+                {
+                    await ProcessFileAsync(fileResult);
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Ошибка",
+                        "Фотосъемка не поддерживается на этом устройстве", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Ошибка",
+                    $"Ошибка при съемке фото: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task PickAudioAsync()
+        {
+            try
+            {
+                FileResult fileResult = null;
+
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    fileResult = await FilePicker.Default.PickAsync(new PickOptions
+                    {
+                        PickerTitle = "Выберите аудиофайл",
+                        FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    { DevicePlatform.Android, new[] { "audio/*" } },
+                    { DevicePlatform.iOS, new[] { "public.audio" } },
+                    { DevicePlatform.WinUI, new[] { ".mp3", ".wav", ".ogg" } },
+                    { DevicePlatform.MacCatalyst, new[] { ".mp3", ".wav", ".ogg" } }
+                })
+                    });
+                });
+
+                if (fileResult != null)
+                {
+                    await ProcessFileAsync(fileResult);
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Ошибка",
+                    $"Ошибка при выборе аудио: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task ProcessFileAsync(FileResult fileResult)
+        {
+            try
+            {
+                // Показываем индикатор загрузки
+                IsBusy = true;
+
+                using var fileStream = await fileResult.OpenReadAsync();
+
+                // Проверка размера файла
+                if (fileStream.Length > 16 * 1024 * 1024)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Ошибка",
+                        "Максимальный размер файла: 16 МБ", "OK");
                     return;
                 }
 
-                // Ожидаем, что сервер вернёт JSON вида { fileId: 123, url: "https://..." }
+                // Создаем контент для отправки
+                using var content = new MultipartFormDataContent();
+                using var fileContent = new StreamContent(fileStream);
+
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+                content.Add(fileContent, "file", fileResult.FileName);
+
+                // Отправка файла на сервер
+                var response = await _httpClient.PostAsync($"users/upload/{_chatId}/{_userId}", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    await Application.Current.MainPage.DisplayAlert("Ошибка",
+                        $"Не удалось загрузить файл: {error}", "OK");
+                    return;
+                }
+
+                // Обработка ответа сервера
                 var json = await response.Content.ReadAsStringAsync();
                 var result = JsonSerializer.Deserialize<UploadResult>(json, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
 
-                if (result != null && result.fileId != 0)
+                if (result == null || result.fileId == 0)
                 {
-                    // Отправляем команду на хаб, чтобы все пользователи получили сообщение с файлом
+                    await Application.Current.MainPage.DisplayAlert("Ошибка",
+                        "Неверный ответ сервера при загрузке файла", "OK");
+                    return;
+                }
+
+                // Отправка сообщения с файлом через SignalR
+                if (_hubConnection.State == HubConnectionState.Connected)
+                {
                     await _hubConnection.InvokeAsync("SendFileMessage", _userId, result.fileId, _chatId);
                 }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Ошибка",
+                        "Нет подключения к чату", "OK");
+                }
             }
-            catch (Exception ex)
+            finally
             {
-                await Application.Current!.MainPage.DisplayAlert("Ошибка", $"Прикрепление файла не удалось: {ex.Message}", "OK");
+                IsBusy = false; // Скрываем индикатор
             }
         }
 
         /// <summary>
-        /// Открываем переданный URL (fileUrl) внешним браузером/менеджером.
+        /// По нажатию по файлу загружаем файл на устройство
         /// </summary>
-        private async Task ExecuteDownloadFile(string fileUrl)
+        private async Task ExecuteDownloadFile(string fileUrl) // файл передаётся напрямую, не ссылкой!
         {
-            if (string.IsNullOrEmpty(fileUrl)) return;
+            await DownloadAndOpenFile(fileUrl);
+        }
 
+        private async Task DownloadAndOpenFile(string fileUrl)
+        {
             try
             {
-                await Launcher.OpenAsync(new Uri(fileUrl));
+                var fileName = Path.GetFileName(fileUrl);
+                var localPath = Path.Combine(_cacheDir, fileName);
+
+                // Скачиваем файл
+                var response = await _httpClient.GetAsync(fileUrl);
+                await using (var fs = File.Create(localPath))
+                {
+                    await response.Content.CopyToAsync(fs);
+                }
+
+                // Открываем файл
+                await Launcher.OpenAsync(new OpenFileRequest
+                {
+                    File = new ReadOnlyFile(localPath)
+                });
             }
             catch (Exception ex)
             {
-                await Application.Current!.MainPage.DisplayAlert("Ошибка", $"Не удалось открыть файл: {ex.Message}", "OK");
+                await Application.Current.MainPage.DisplayAlert("Ошибка", ex.Message, "OK");
+            }
+        }
+
+        public static void ClearCacheOnStartup()
+        {
+            var cacheDir = Path.Combine(FileSystem.CacheDirectory, "MessengerFiles");
+            if (Directory.Exists(cacheDir))
+            {
+                Directory.Delete(cacheDir, true);
             }
         }
 

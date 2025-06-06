@@ -1,27 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.Maui.Controls;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MessengerMiniApp.Pages;
+using MessengerMiniApp.ViewModels; // Добавьте это пространство имён
 
 namespace MessengerMiniApp.Converters
 {
     public class UserIdToColorConverter : IValueConverter
     {
-        /// <summary>
-        /// Текущий ID пользователя, который отправляет сообщения.Add commentMore actions
-        /// </summary>
-        public int CurrentUserId { get; set; }
-
+        // UserIdToColorConverter.cs
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int userId)
+            if (value is int userId && parameter is ContentPage page)
             {
-                // Если сообщение отправлено текущим пользователем – один цвет, иначе – другой.
-                return userId == CurrentUserId
-                    ? Color.FromArgb("#FEAAAA") // фиолетовый для своих
-                    : Color.FromArgb("#EAEAEA"); // синий для чужих
+                if (page.BindingContext is ChatViewModel vm)
+                {
+                    return userId == vm.CurrentUserId
+                        ? Color.FromArgb("#FEAAAA")
+                        : Color.FromArgb("#EAEAEA");
+                }
             }
             return Colors.Gray;
         }

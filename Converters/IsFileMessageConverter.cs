@@ -1,16 +1,13 @@
-﻿using System;
-using System.Globalization;
-using Microsoft.Maui.Controls;
+﻿using System.Globalization;
+using MessengerMiniApp.DTOs;
 
 namespace MessengerMiniApp.Converters
 {
-    public class NullToVisibilityConverter : IValueConverter
+    public class IsFileMessageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null) return false;
-            if (value is string s && string.IsNullOrWhiteSpace(s)) return false;
-            return true;
+            return value is MessageDto message && !string.IsNullOrEmpty(message.FileUrl);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

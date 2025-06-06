@@ -19,9 +19,9 @@ namespace MessengerMiniApp
                     fonts.AddFont("Lato-Regular.ttf", "Lato");
                     fonts.AddFont("Lato-Bold.ttf", "LatoBold");
                 });
-
             builder.Services.AddSingleton(AudioManager.Current);
             builder.Services.AddTransient<ChatPage>();
+
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
