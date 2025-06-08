@@ -22,6 +22,8 @@
 		<!-- Display name -->
 		<ApplicationTitle>MessengerMiniApp</ApplicationTitle>
 
+		<PublishTrimmed>true</PublishTrimmed>
+
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.messengerminiapp</ApplicationId>
 

@@ -101,15 +101,21 @@
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
 
-                                        <Image
-                                            Grid.Column="0"
-                                            Source="{Binding avatar}"
-                                            WidthRequest="50"
-                                            HeightRequest="50"
-                                            Aspect="AspectFill"
-                                            VerticalOptions="Center"
-                                            HorizontalOptions="Center"
-                                            Clip="Ellipse" />
+                                        <Frame
+                                                Grid.Column="0"
+                                                WidthRequest="50"
+                                                HeightRequest="50"
+                                                CornerRadius="25"
+                                                Padding="0"
+                                                IsClippedToBounds="True"
+                                                HasShadow="False"
+                                                VerticalOptions="Center"
+                                                HorizontalOptions="Center">
+
+                                            <Image
+                                                  Source="{Binding Avatar}"
+                                                  Aspect="AspectFill" />
+                                        </Frame>
 
                                         <StackLayout
                                             Grid.Column="1"

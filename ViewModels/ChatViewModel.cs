@@ -130,7 +130,6 @@ namespace MessengerMiniApp.ViewModels
 
             PeerUsername = peerUsername;    // например, получить из API или со страницы чатов (там мы получаем название чата и его по сути можно и отобразить здесь)
             PeerStatus = "Не в сети";       // или «отсутствует» и т. п. (пока не реализованы статусы, поэтому просот заглушка)
-            PeerAvatar = null;              // null → рисуем просто окружность (тоже пока не реализованы аватары)
 
             _messagesById = new Dictionary<int, MessageDto>();
             Messages = new ObservableCollection<MessageDto>();
@@ -170,7 +169,7 @@ namespace MessengerMiniApp.ViewModels
                 {
                     // Показываем Alert и возвращаемся
                     await Application.Current!.MainPage.DisplayAlert("Ошибка",
-                        $"Не удалось загрузить сообщения (код {response.StatusCode})", "OK"); // это сообщение не вызывается
+                        $"Не удалось загрузить сообщения (код {response.StatusCode})", "OK");
                     return;
                 }
 
@@ -186,7 +185,6 @@ namespace MessengerMiniApp.ViewModels
                 Messages.Clear();
                 _messagesById.Clear();
 
-                // Добавляем в коллекцию (они сортированы на сервере по CreatedAt? Иначе отсортируйте здесь)
                 foreach (var msg in messages.OrderBy(m => m.CreatedAt))
                 {
                     Messages.Add(msg);
@@ -196,7 +194,7 @@ namespace MessengerMiniApp.ViewModels
             catch (Exception ex)
             {
                 await Application.Current!.MainPage.DisplayAlert("Ошибка",
-                    $"При загрузке сообщений произошла ошибка: {ex.Message}", "OK"); // вызывается эта ошибка
+                    $"При загрузке сообщений произошла ошибка: {ex.Message}", "OK");
             }
         }
 
@@ -208,32 +206,46 @@ namespace MessengerMiniApp.ViewModels
         {
             if (_hubConnection != null)
             {
-                // Если уже было подключение, корректно остановим его
                 await _hubConnection.StopAsync();
                 await _hubConnection.DisposeAsync();
+                _hubConnection = null;
             }
 
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(HubUrl)
-                .WithAutomaticReconnect() // Встроенный механизм реконнекта
+                .WithAutomaticReconnect(new[] {
+                TimeSpan.Zero,
+                TimeSpan.FromSeconds(2),
+                TimeSpan.FromSeconds(5),
+                TimeSpan.FromSeconds(10)
+                })
                 .Build();
 
-            // При получении одиночного сообщения
             _hubConnection.On<MessageDto>("ReceiveMessage", (messageDto) =>
             {
-                MainThread.BeginInvokeOnMainThread(() =>
+                MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    // Для файловых сообщений используем имя файла
-                    if (!string.IsNullOrWhiteSpace(messageDto.FileUrl))
+                    // Простая обработка новых сообщений
+                    if (!_messagesById.ContainsKey(messageDto.MessageId))
                     {
-                        messageDto.Content = $"[Файл: {System.IO.Path.GetFileName(messageDto.FileUrl)}]";
+                        Messages.Add(messageDto);
+                        _messagesById[messageDto.MessageId] = messageDto;
+                        await _hubConnection.InvokeAsync("MarkMessagesAsRead", _chatId, _userId);
                     }
-                    Messages.Add(messageDto);
-                    _messagesById[messageDto.MessageId] = messageDto;
                 });
             });
 
-            // Не работает
+            _hubConnection.On<StatusDto>("UpdateMessageStatus", (statusDto) =>
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    if (_messagesById.TryGetValue(statusDto.MessageId, out var message))
+                    {
+                        message.Status = statusDto.Status;
+                    }
+                });
+            });
+
             _hubConnection.On<List<StatusDto>>("BatchUpdateStatuses", (statuses) =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
@@ -248,30 +260,40 @@ namespace MessengerMiniApp.ViewModels
                 });
             });
 
-            // При команде RefreshMessages — перечитать всю историю
-            _hubConnection.On("RefreshMessages", () =>
+            _hubConnection.Reconnecting += ex =>
+            {
+                MainThread.BeginInvokeOnMainThread(() => IsBusy = true);
+                return Task.CompletedTask;
+            };
+
+            _hubConnection.Reconnected += connectionId =>
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    await LoadMessagesAsync();
+                    IsBusy = false;
+                    await _hubConnection.InvokeAsync("JoinChat", _chatId);
+                    await _hubConnection.InvokeAsync("RegisterUser", _userId);
                 });
-            });
+                return Task.CompletedTask;
+            };
 
             try
             {
                 await _hubConnection.StartAsync();
-                // После подключения сразу входим в группу чата
+                await _hubConnection.InvokeAsync("RegisterUser", _userId);
                 await _hubConnection.InvokeAsync("JoinChat", _chatId);
-                // И помечаем все сообщения как прочитанные
                 await _hubConnection.InvokeAsync("MarkMessagesAsRead", _chatId, _userId);
             }
             catch (Exception ex)
             {
-                // Если не удалось подключиться, покажем уведомление (не фатально)
-                await Application.Current!.MainPage.DisplayAlert("Ошибка",
-                    $"Не удалось подключиться к чату: {ex.Message}", "OK");
+                await Application.Current!.MainPage.DisplayAlert("Ошибка подключения",
+                    $"Не удалось подключиться к чату: {ex.Message}", "Повторить");
+                // Автоматический реконнект через 5 секунд
+                await Task.Delay(5000);
+                await ConnectToSignalRAsync();
             }
         }
+
 
         /// <summary>
         /// Отправка обычного текстового сообщения через SignalR.
@@ -510,6 +532,11 @@ namespace MessengerMiniApp.ViewModels
                     return;
                 }
 
+                // Сохраняем файл локально
+                var localPath = Path.Combine(_cacheDir, fileResult.FileName);
+                using var localFileStream = File.Create(localPath);
+                await fileStream.CopyToAsync(localFileStream);
+
                 // Отправка сообщения с файлом через SignalR
                 if (_hubConnection.State == HubConnectionState.Connected)
                 {
@@ -527,39 +554,40 @@ namespace MessengerMiniApp.ViewModels
             }
         }
 
+
         /// <summary>
         /// По нажатию по файлу загружаем файл на устройство
         /// </summary>
         private async Task ExecuteDownloadFile(string fileUrl) // файл передаётся напрямую, не ссылкой!
         {
-            await DownloadAndOpenFile(fileUrl);
-        }
+            var fileName = Path.GetFileName(fileUrl);
+            var localPath = Path.Combine(_cacheDir, fileName);
 
-        private async Task DownloadAndOpenFile(string fileUrl)
-        {
-            try
+            // Проверяем, существует ли файл локально
+            if (File.Exists(localPath))
             {
-                var fileName = Path.GetFileName(fileUrl);
-                var localPath = Path.Combine(_cacheDir, fileName);
-
-                // Скачиваем файл
-                var response = await _httpClient.GetAsync(fileUrl);
-                await using (var fs = File.Create(localPath))
-                {
-                    await response.Content.CopyToAsync(fs);
-                }
-
                 // Открываем файл
                 await Launcher.OpenAsync(new OpenFileRequest
                 {
                     File = new ReadOnlyFile(localPath)
                 });
+                return;
             }
-            catch (Exception ex)
+
+            // Скачиваем файл
+            var response = await _httpClient.GetAsync(fileUrl);
+            await using (var fs = File.Create(localPath))
             {
-                await Application.Current.MainPage.DisplayAlert("Ошибка", ex.Message, "OK");
+                await response.Content.CopyToAsync(fs);
             }
+
+            // Открываем файл
+            await Launcher.OpenAsync(new OpenFileRequest
+            {
+                File = new ReadOnlyFile(localPath)
+            });
         }
+
 
         public static void ClearCacheOnStartup()
         {
@@ -568,6 +596,7 @@ namespace MessengerMiniApp.ViewModels
             {
                 Directory.Delete(cacheDir, true);
             }
+            Directory.CreateDirectory(cacheDir);
         }
 
         // Класс для десериализации ответа upload API

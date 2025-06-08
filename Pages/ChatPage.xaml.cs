@@ -20,16 +20,16 @@ namespace MessengerMiniApp.Pages
             _viewModel.Messages.CollectionChanged += OnMessagesCollectionChanged;
         }
 
-        private void OnMessagesCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void OnMessagesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            if (e.Action == NotifyCollectionChangedAction.Replace ||
+                e.Action == NotifyCollectionChangedAction.Reset)
             {
-                // Скроллим к новому сообщению
-                var last = _viewModel.Messages[^1];
-                MessagesCollectionView.Dispatcher.Dispatch(() =>
+                var last = _viewModel.Messages.LastOrDefault();
+                if (last != null)
                 {
                     MessagesCollectionView.ScrollTo(last, position: ScrollToPosition.End, animate: true);
-                });
+                }
             }
         }
 

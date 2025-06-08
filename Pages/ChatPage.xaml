@@ -11,6 +11,7 @@
 
     <ContentPage.Resources>
         <conv:NullToColorConverter x:Key="NullToColorConverter" />
+        <conv:IsOwnMessageToBoolConverter x:Key="IsOwnMessageToBoolConverter" />
         <conv:InverseBoolConverter x:Key="InverseBoolConverter"/>
         <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
         <conv:StatusToColorConverter x:Key="StatusToColorConverter" />
@@ -53,7 +54,7 @@
                        VerticalOptions="Center"
                        HorizontalOptions="Center">
                     <!-- Если PeerAvatar != null — покажем картинку, иначе просто оставим фон -->
-                    <Image Source="{Binding PeerAvatar}"
+                        <Image Source="{Binding Avatar}"
                            Aspect="AspectFill"
                            VerticalOptions="Fill"
                            HorizontalOptions="Fill"
@@ -152,7 +153,7 @@
                                                    HorizontalOptions="Start"
                                                    TextColor="Black" />
 
-                                            <!-- Секция времени и статуса (рядом с галочкой) -->
+                                            <!-- Секция времени и статуса -->
                                             <Grid Grid.Row="1"
                                                   Margin="0,5,0,0"
                                                   HorizontalOptions="{Binding UserID, Converter={StaticResource UserIdToAlignmentConverter}, ConverterParameter={x:Reference PageRoot}}">
@@ -172,11 +173,11 @@
                                                 <!-- Пустая колонка Grid.Column="1" для отступа -->
 
                                                 <!-- Галочка статуса -->
-                                                <Label Text="✓"
+                                                <Label Text="{Binding Status, Converter={StaticResource StatusToTextConverter}}"
                                                        Grid.Column="2"
                                                        FontSize="14"
-                                                       TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
-                                                       IsVisible="{Binding Status, Converter={StaticResource StatusToTextConverter}, ConverterParameter='Delivered'}"/>
+                                                       TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}" 
+                                                       IsVisible="{Binding UserID, Converter={StaticResource IsOwnMessageToBoolConverter}, ConverterParameter={x:Reference PageRoot}}"/>
                                             </Grid>
                                         </Grid>
                                     </Frame>

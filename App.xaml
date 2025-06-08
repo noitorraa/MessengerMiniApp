@@ -21,6 +21,7 @@
             <conv:UserIdToColorConverter x:Key="UserIdToColorConverter" />
             <!-- Для выравнивания «влево/вправо» используем HorizontalOptions: -->
             <conv:UserIdToAlignmentConverter x:Key="UserIdToAlignmentConverter" />
+            <conv:IsOwnMessageToBoolConverter x:Key="IsOwnMessageToBoolConverter" />
             <conv:IsFileMessageConverter x:Key="IsFileMessageConverter"/>
 
             <!-- 2) Затем определяем «локальные» цвета (если они не вынесены в отдельные файлы) -->

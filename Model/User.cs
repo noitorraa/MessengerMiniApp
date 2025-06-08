@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MessengerServer.Models;
+namespace MessengerServer.Model;
 
 public partial class User
 {
@@ -12,7 +12,10 @@ public partial class User
     public string PasswordHash { get; set; } = null!;
 
     public DateTime? CreatedAt { get; set; }
-    public string PhoneNumber { get; set; } = null!;
+
+    public string? PhoneNumber { get; set; }
+
+    public byte[]? Avatar { get; set; }
 
     public virtual ICollection<ChatMember> ChatMembers { get; set; } = new List<ChatMember>();
 

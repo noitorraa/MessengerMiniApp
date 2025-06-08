@@ -1,11 +1,12 @@
+using MessengerServer.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MessengerServer.Models;
-using Newtonsoft.Json;
 
 namespace MessengerMiniApp.Pages
 {
@@ -59,22 +60,49 @@ namespace MessengerMiniApp.Pages
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_apiUrl}search?login={Uri.EscapeDataString(query)}");
+                // 1. Нормализуем регистр для устранения проблем
+                var normalizedQuery = query.Trim().ToLower();
+
+                // 2. Формируем URL (EscapeDataString остаётся)
+                var url = $"{_apiUrl}search?login={Uri.EscapeDataString(normalizedQuery)}";
+
+                var response = await _httpClient.GetAsync(url);
+
+                // 3. Обрабатываем разные статус-коды
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var users = JsonConvert.DeserializeObject<List<User>>(content);
 
-                    UpdateResults(users.Where(u => u.UserId != _userId));
+                    // 4. Проверяем на null перед фильтрацией
+                    var filteredUsers = users?
+                        .Where(u => u.UserId != _userId)
+                        .ToList() ?? new List<User>();
+
+                    UpdateResults(filteredUsers);
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // 5. Обрабатываем "не найдено" явно
+                    UpdateResults(new List<User>());
+                    await DisplayAlert("Информация", "Пользователи не найдены", "OK");
                 }
                 else
                 {
-                    await DisplayAlert("Ошибка", "Не удалось выполнить поиск", "OK");
+                    // 6. Обрабатываем другие ошибки
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    await DisplayAlert("Ошибка",
+                        $"Ошибка сервера: {response.StatusCode}\n{errorContent}",
+                        "OK");
                 }
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Ошибка", $"Ошибка сети: {ex.Message}", "OK");
+            }
+            finally
+            {
+                HideLoadingIndicator();
             }
         }
 

@@ -129,12 +129,12 @@
                         IsClippedToBounds="True"
                         BorderColor="{DynamicResource Primary}"
                         Margin="0,20,0,30">
-                        <Image
-                            x:Name="UserAvatar"
-                            Source="usericon.png"
-                            Aspect="AspectFill"
-                            HeightRequest="150"
-                            WidthRequest="150" />
+                    <Image
+                        x:Name="UserAvatar"
+                        Source="{Binding Avatar}"
+                        Aspect="AspectFill"
+                        HeightRequest="150"
+                        WidthRequest="150" />
                     </Frame>
 
                     <!-- Кнопка изменения аватара -->
@@ -198,15 +198,21 @@
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
 
-                                            <Image
+                                            <Frame
                                                 Grid.Column="0"
-                                                Source="{Binding Avatar}"
                                                 WidthRequest="50"
                                                 HeightRequest="50"
-                                                Aspect="AspectFill"
+                                                CornerRadius="25"
+                                                Padding="0"
+                                                IsClippedToBounds="True"
+                                                HasShadow="False"
                                                 VerticalOptions="Center"
-                                                HorizontalOptions="Center"
-                                                Clip="Ellipse" />
+                                                HorizontalOptions="Center">
+
+                                                <Image
+                                                  Source="{Binding Avatar}"
+                                                  Aspect="AspectFill" />
+                                            </Frame>
 
                                             <StackLayout
                                                 Grid.Column="1"

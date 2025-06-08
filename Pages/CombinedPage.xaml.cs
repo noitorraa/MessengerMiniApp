@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
-using MessengerServer.Models;
+using MessengerMiniApp.DTOs;
+using MessengerServer.Model;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace MessengerMiniApp.Pages
 {
@@ -57,6 +57,7 @@ namespace MessengerMiniApp.Pages
             }
             else
             {
+                Console.WriteLine("Загрузка профиля");
                 await LoadUserProfile();
             }
         }
@@ -254,21 +255,32 @@ namespace MessengerMiniApp.Pages
         {
             try
             {
-                // Получаем информацию о пользователе с сервера
-                var response = await _httpClient.GetAsync($"{ApiUrl}{_userId}");
-                if (response.IsSuccessStatusCode)
+                // Проверяем наличие аватара в локальном хранилище
+                var localAvatarPath = Path.Combine(FileSystem.CacheDirectory, "MessengerFiles", $"avatar_{_userId}.jpg");
+                if (System.IO.File.Exists(localAvatarPath))
                 {
-                    var user = JsonConvert.DeserializeObject<User>(await response.Content.ReadAsStringAsync());
-                    if (user != null)
+                    // Если аватар существует локально, загружаем его
+                    using var fileStream = new FileStream(localAvatarPath, FileMode.Open, FileAccess.Read);
+                    var memoryStream = new MemoryStream();
+                    await fileStream.CopyToAsync(memoryStream);
+                    UserAvatar.Source = ImageSource.FromStream(() => new MemoryStream(memoryStream.ToArray()));
+                }
+                else
+                {
+                    // Если аватара нет локально, запрашиваем его с сервера
+                    var response = await _httpClient.GetAsync($"{ApiUrl}profile/{_userId}");
+                    if (response.IsSuccessStatusCode)
                     {
-                        // Заполняем поля профиля
-                        UsernameEntry.Text = user.Username;
-                        
-                        // Если у пользователя есть аватар, отображаем его
-                        //if (!string.IsNullOrEmpty(user.Avatar))
-                        //{
-                        //    UserAvatar.Source = user.Avatar;
-                        //}
+                        var user = JsonConvert.DeserializeObject<User>(await response.Content.ReadAsStringAsync());
+                        if (user != null && user.Avatar != null)
+                        {
+                            // Отображаем аватар, полученный с сервера
+                            UserAvatar.Source = ImageSource.FromStream(() => new MemoryStream(user.Avatar));
+
+                            // Сохраняем аватар локально
+                            using var fileStream = new FileStream(localAvatarPath, FileMode.Create, FileAccess.Write);
+                            await fileStream.WriteAsync(user.Avatar, 0, user.Avatar.Length);
+                        }
                     }
                 }
             }
@@ -286,10 +298,49 @@ namespace MessengerMiniApp.Pages
                 var photo = await MediaPicker.PickPhotoAsync();
                 if (photo != null)
                 {
+                    // Проверяем расширение файла
+                    var fileExtension = Path.GetExtension(photo.FullPath).ToLowerInvariant();
+                    if (!new[] { ".jpg", ".jpeg", ".png" }.Contains(fileExtension))
+                    {
+                        await DisplayAlert("Ошибка", "Недопустимый формат файла. Пожалуйста, выберите изображение.", "OK");
+                        return;
+                    }
+
                     // Отображаем выбранное фото
                     UserAvatar.Source = ImageSource.FromFile(photo.FullPath);
-                    
-                    // Логика для сохранения аватара на сервере будет добавлена позже
+
+                    // Сохраняем аватар локально
+                    var localPath = Path.Combine(FileSystem.CacheDirectory, "MessengerFiles", $"avatar_{_userId}{fileExtension}");
+                    using var fileStream = System.IO.File.Create(localPath);
+                    using var stream = await photo.OpenReadAsync();
+                    await stream.CopyToAsync(fileStream);
+
+                    // Отправляем аватар на сервер
+                    using var memoryStream = new MemoryStream();
+                    await stream.CopyToAsync(memoryStream);
+                    var avatarBytes = memoryStream.ToArray();
+
+                    var changeAvatarRequest = new ChangeAvatarRequest
+                    {
+                        UserId = _userId,
+                        NewAvatar = avatarBytes
+                    };
+
+                    var content = new StringContent(
+                        JsonConvert.SerializeObject(changeAvatarRequest),
+                        System.Text.Encoding.UTF8,
+                        "application/json"
+                    );
+
+                    var response = await _httpClient.PutAsync($"{ApiUrl}change-avatar", content);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        await DisplayAlert("Успешно", "Аватар обновлен", "OK");
+                    }
+                    else
+                    {
+                        await DisplayAlert("Ошибка", "Не удалось обновить аватар", "OK");
+                    }
                 }
             }
             catch (Exception ex)
@@ -297,6 +348,7 @@ namespace MessengerMiniApp.Pages
                 await DisplayAlert("Ошибка", $"Не удалось выбрать фото: {ex.Message}", "OK");
             }
         }
+
 
         private async void OnSaveProfileClicked(object sender, EventArgs e)
         {
@@ -310,28 +362,27 @@ namespace MessengerMiniApp.Pages
                 }
 
                 // Создаем объект с данными пользователя для отправки на сервер
-                var userData = new
+                var changeLoginRequest = new ChangeLoginRequest
                 {
                     UserId = _userId,
-                    Username = UsernameEntry.Text,
-                    // Логика для отправки аватара будет добавлена позже
+                    NewLogin = UsernameEntry.Text
                 };
 
                 // Отправляем данные на сервер
                 var content = new StringContent(
-                    JsonConvert.SerializeObject(userData),
+                    JsonConvert.SerializeObject(changeLoginRequest),
                     System.Text.Encoding.UTF8,
                     "application/json"
                 );
 
-                var response = await _httpClient.PutAsync($"{ApiUrl}{_userId}", content);
+                var response = await _httpClient.PutAsync($"{ApiUrl}change-login", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    await DisplayAlert("Успешно", "Профиль обновлен", "OK");
+                    await DisplayAlert("Успешно", "Логин обновлен", "OK");
                 }
                 else
                 {
-                    await DisplayAlert("Ошибка", "Не удалось обновить профиль", "OK");
+                    await DisplayAlert("Ошибка", "Не удалось обновить логин", "OK");
                 }
             }
             catch (Exception ex)
@@ -375,7 +426,7 @@ namespace MessengerMiniApp.Pages
         public List<UserDto>? Members { get; set; }
         public DateTime CreatedAt { get; set; }
         public string? LastMessage { get; set; }
-        public string? Avatar { get; set; } = "usericon.png";
+        public byte[]? Avatar { get; set; }
     }
 
     // Модель для пользователей (из ChatListPage)

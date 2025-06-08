@@ -1,4 +1,4 @@
-using MessengerServer.Models;
+using MessengerServer.Model;
 using Newtonsoft.Json;
 using System.Text;
 using System.Text.RegularExpressions;

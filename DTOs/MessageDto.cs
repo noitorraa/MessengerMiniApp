@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using MessengerServer.Models;
+using MessengerServer.Model;
 
 namespace MessengerMiniApp.DTOs
 {
@@ -46,7 +46,7 @@ namespace MessengerMiniApp.DTOs
                 if (_status != value)
                 {
                     _status = value;
-                    OnPropertyChanged();
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
                 }
             }
         }
