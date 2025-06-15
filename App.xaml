@@ -9,32 +9,17 @@
     <Application.Resources>
         <ResourceDictionary>
             <conv:InverseBoolConverter x:Key="InverseBoolConverter"/>
-            <!-- 1) Сначала определяем все конвертеры -->
-            <!-- Конвертер, который скрывает элемент, если привязанное значение null/пусто -->
             <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <conv:NullToColorConverter x:Key="NullToColorConverter" />
-            <!-- Преобразует статус (enum или int) в цвет для «галочки» или фона -->
             <conv:StatusToColorConverter x:Key="StatusToColorConverter" />
-            <!-- Преобразует статус в строку («Отправлено», «Доставлено», «Прочитано» и т. д.) -->
             <conv:StatusToTextConverter x:Key="StatusToTextConverter" />
-            <!-- Преобразует UserID в цвет фона/текста (если нужны разные цвета для каждого собеседника) -->
             <conv:UserIdToColorConverter x:Key="UserIdToColorConverter" />
-            <!-- Для выравнивания «влево/вправо» используем HorizontalOptions: -->
             <conv:UserIdToAlignmentConverter x:Key="UserIdToAlignmentConverter" />
             <conv:IsOwnMessageToBoolConverter x:Key="IsOwnMessageToBoolConverter" />
             <conv:IsFileMessageConverter x:Key="IsFileMessageConverter"/>
-
-            <!-- 2) Затем определяем «локальные» цвета (если они не вынесены в отдельные файлы) -->
-            <Color x:Key="PrimaryColor">#222F3E</Color>
-            <Color x:Key="SecondaryColor">#2C3E50</Color>
-            <Color x:Key="SeparatorColor">#34495E</Color>
-            <Color x:Key="ChatItemBackgroundColor">#2C3E50</Color>
-            <Color x:Key="MessageBubbleColor">#794d91</Color>
-
-            <!-- 3) Подключаем внешние словари (Styles, Colors и т.д.) -->
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+                <ResourceDictionary Source="Resources/Styles/DarkTheme.xaml" />
+                <ResourceDictionary Source="Resources/Styles/LightTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

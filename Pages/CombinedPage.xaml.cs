@@ -4,10 +4,11 @@ using MessengerMiniApp.DTOs;
 using MessengerServer.Model;
 using System.Collections.ObjectModel;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Controls.Xaml;
 
 namespace MessengerMiniApp.Pages
 {
-    public partial class CombinedPage : ContentPage
+    public partial class CombinedPage : ContentPage, IThemeAware
     {
         // Общие поля
         private readonly int _userId;
@@ -26,7 +27,7 @@ namespace MessengerMiniApp.Pages
         {
             InitializeComponent();
             _userId = userId;
-            
+            App.ThemeChanged += OnThemeChanged;
             // Инициализация коллекции чатов
             _chats = new ObservableCollection<ChatDto>();
             ChatListView.ItemsSource = _chats;
@@ -38,14 +39,25 @@ namespace MessengerMiniApp.Pages
             UpdateUI();
         }
 
+        private async void OnThemeChanged()
+        {
+            await this.FadeTo(0, 200); // Плавное исчезновение
+            Navigation.PushAsync(new CombinedPage(_userId));
+            Navigation.RemovePage(this);
+            await this.FadeTo(1, 200); // Плавное появление
+        }
+
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
+            App.ThemeChanged -= OnThemeChanged; // Отписываемся
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+
+            ThemeToggle.IsToggled = Application.Current.UserAppTheme == AppTheme.Dark;
             
             // Подключаемся к SignalR для чатов
             await ConnectToSignalR();
@@ -66,36 +78,35 @@ namespace MessengerMiniApp.Pages
 
         private void UpdateUI()
         {
-            // Обновляем состояние UI в зависимости от выбранной вкладки
+            ChatListView.IsVisible = _currentTab == ActiveTab.Chats;
+            ProfileView.IsVisible = _currentTab == ActiveTab.Profile;
+            SearchButton.IsVisible = _currentTab == ActiveTab.Chats;
+
             if (_currentTab == ActiveTab.Chats)
             {
-                // Показываем чаты
-                ChatListView.IsVisible = true;
-                ProfileView.IsVisible = false;
-                SearchButton.IsVisible = true;
-                
-                // Обновляем стили кнопок
-                ChatsTabButton.TextColor = Colors.White;
-                ChatsTabButton.BackgroundColor = (Color)Application.Current.Resources["Secondary"];
-                
-                StatusTabButton.TextColor = Colors.Black;
-                StatusTabButton.BackgroundColor = Colors.White;
+                // Используем динамические ресурсы
+                ChatsTabButton.SetDynamicResource(Button.TextColorProperty, "ActiveTabTextColor");
+                ChatsTabButton.SetDynamicResource(Button.BackgroundColorProperty, "ActiveTabBackgroundColor");
+
+                StatusTabButton.SetDynamicResource(Button.TextColorProperty, "InactiveTabTextColor");
+                StatusTabButton.SetDynamicResource(Button.BackgroundColorProperty, "InactiveTabBackgroundColor");
             }
-            else // ActiveTab.Profile
+            else
             {
-                // Показываем профиль пользователя
-                ChatListView.IsVisible = false;
-                ProfileView.IsVisible = true;
-                SearchButton.IsVisible = false; // Скрываем кнопку поиска в режиме профиля
-                
-                // Обновляем стили кнопок
-                StatusTabButton.TextColor = Colors.White;
-                StatusTabButton.BackgroundColor = (Color)Application.Current.Resources["Secondary"];
-                
-                ChatsTabButton.TextColor = Colors.Black;
-                ChatsTabButton.BackgroundColor = Colors.White;
+                StatusTabButton.SetDynamicResource(Button.TextColorProperty, "ActiveTabTextColor");
+                StatusTabButton.SetDynamicResource(Button.BackgroundColorProperty, "ActiveTabBackgroundColor");
+
+                ChatsTabButton.SetDynamicResource(Button.TextColorProperty, "InactiveTabTextColor");
+                ChatsTabButton.SetDynamicResource(Button.BackgroundColorProperty, "InactiveTabBackgroundColor");
             }
         }
+
+        public void ApplyTheme()
+        {
+            // Принудительно обновляем свойства, связанные с темой
+            UpdateUI();
+        }
+
 
         private void OnBackClicked(object sender, EventArgs e)
         {
@@ -104,7 +115,8 @@ namespace MessengerMiniApp.Pages
 
         private void OnThemeToggled(object sender, ToggledEventArgs e)
         {
-            // Логика переключения темы (будет реализована позже)
+            Application.Current.UserAppTheme = e.Value ? AppTheme.Dark : AppTheme.Light;
+            Preferences.Set("AppTheme", e.Value ? "Dark" : "Light");
         }
 
         #endregion

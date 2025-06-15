@@ -27,6 +27,14 @@ namespace MessengerMiniApp.Pages
             searchResultsListView.ItemsSource = _searchResults;
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            
+            // Синхронизируем переключатель с текущей темой
+            ThemeToggle.IsToggled = Application.Current.UserAppTheme == AppTheme.Dark;
+        }
+
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
         {
             var query = e.NewTextValue?.Trim();
@@ -108,7 +116,11 @@ namespace MessengerMiniApp.Pages
 
         private void OnThemeToggled(object sender, ToggledEventArgs e)
         {
-            // Логика переключения темы (будет реализована позже)
+            // Устанавливаем тему приложения
+            Application.Current.UserAppTheme = e.Value ? AppTheme.Dark : AppTheme.Light;
+            
+            // Сохраняем выбор пользователя
+            Preferences.Set("AppTheme", e.Value ? "Dark" : "Light");
         }
 
         private void UpdateResults(IEnumerable<User> results)
@@ -137,62 +149,62 @@ namespace MessengerMiniApp.Pages
             searchActivityIndicator.IsRunning = false;
         }
 
-private async void OnUserTapped(object sender, SelectionChangedEventArgs e)
-{
-    // Получаем выбранного пользователя
-    var selectedUser = e.CurrentSelection.FirstOrDefault() as User;
-    if (selectedUser == null)
-        return;
-
-    // Сразу сбрасываем выделение, чтобы следующий тап по тому же элементу тоже сработал
-    ((CollectionView)sender).SelectedItem = null;
-
-    // Пытаемся создать (или получить) чат
-    var chatId = await SaveChatAndMembers(selectedUser);
-    if (chatId != -1)
-    {
-        await Navigation.PushAsync(new ChatPage(_userId, chatId, selectedUser.Username));
-
-            }
-            else
-            {
-                await DisplayAlert("Ошибка", "Не удалось создать чат", "OK");
-            }
-        }
-
-        private async Task<int> SaveChatAndMembers(User selectedUser)
+        private async void OnUserTapped(object sender, SelectionChangedEventArgs e)
         {
-            try
+            // Получаем выбранного пользователя
+            var selectedUser = e.CurrentSelection.FirstOrDefault() as User;
+            if (selectedUser == null)
+                return;
+
+            // Сразу сбрасываем выделение, чтобы следующий тап по тому же элементу тоже сработал
+            ((CollectionView)sender).SelectedItem = null;
+
+            // Пытаемся создать (или получить) чат
+            var chatId = await SaveChatAndMembers(selectedUser);
+            if (chatId != -1)
             {
-                var chatRequest = new ChatCreationRequest
-                {
-                    ChatName = selectedUser.Username,
-                    UserIds = new List<int> { _userId, selectedUser.UserId }
-                };
+                await Navigation.PushAsync(new ChatPage(_userId, chatId, selectedUser.Username));
 
-                var json = JsonConvert.SerializeObject(chatRequest);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync($"{_apiUrl}chats", content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var createdChat = JsonConvert.DeserializeObject<Chat>(await response.Content.ReadAsStringAsync());
-                    return createdChat?.ChatId ?? -1;
+                    }
+                    else
+                    {
+                        await DisplayAlert("Ошибка", "Не удалось создать чат", "OK");
+                    }
                 }
-                return -1;
-            }
-            catch
-            {
-                return -1;
-            }
-        }
 
-        private async void OnBackClicked(object sender, EventArgs e)
-        {
-            await Navigation.PopAsync();
+                private async Task<int> SaveChatAndMembers(User selectedUser)
+                {
+                    try
+                    {
+                        var chatRequest = new ChatCreationRequest
+                        {
+                            ChatName = selectedUser.Username,
+                            UserIds = new List<int> { _userId, selectedUser.UserId }
+                        };
+
+                        var json = JsonConvert.SerializeObject(chatRequest);
+                        var content = new StringContent(json, Encoding.UTF8, "application/json");
+                        var response = await _httpClient.PostAsync($"{_apiUrl}chats", content);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var createdChat = JsonConvert.DeserializeObject<Chat>(await response.Content.ReadAsStringAsync());
+                            return createdChat?.ChatId ?? -1;
+                        }
+                        return -1;
+                    }
+                    catch
+                    {
+                        return -1;
+                    }
+                }
+
+                private async void OnBackClicked(object sender, EventArgs e)
+                {
+                    await Navigation.PopAsync();
+                }
+            }
         }
-    }
-}
 
 public class ChatCreationRequest
 {

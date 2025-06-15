@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="MessengerMiniApp.Pages.SearchPage"
     NavigationPage.HasNavigationBar="False"
-    BackgroundColor="{DynamicResource Primary}"
+    BackgroundColor="{DynamicResource PrimaryColor}"
     Title="Поиск">
     
     <AbsoluteLayout>
@@ -25,7 +25,7 @@
             <!-- === СТРОКА 0: Заголовок === -->
             <Grid
                 Grid.Row="0"
-                BackgroundColor="{DynamicResource Primary}"
+                BackgroundColor="{DynamicResource PrimaryColor}"
                 Padding="20,5,20,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="50"/>
@@ -64,7 +64,7 @@
             <StackLayout
                 Grid.Row="1"
                 Padding="20,10"
-                BackgroundColor="{DynamicResource White}">
+                BackgroundColor="{DynamicResource Gray300}">
                 <Entry
                     x:Name="SearchEntry"
                     Placeholder="Поиск..."
@@ -81,7 +81,7 @@
             <Border
                 Grid.Row="2"
                 StrokeThickness="0"
-                BackgroundColor="White">
+                BackgroundColor="{DynamicResource White}">
 
                 <!-- Используем Grid для наложения ActivityIndicator поверх CollectionView -->
                 <Grid>
@@ -91,7 +91,7 @@
                         SelectionMode="Single"
                         SelectionChanged="OnUserTapped"
                         Margin="0"
-                        BackgroundColor="White">
+                        BackgroundColor="{DynamicResource Gray300}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <StackLayout Spacing="0">
@@ -148,7 +148,7 @@
                         x:Name="searchActivityIndicator"
                         IsVisible="False"
                         IsRunning="False"
-                        Color="{DynamicResource Primary}"
+                        Color="{DynamicResource PrimaryColor}"
                         VerticalOptions="Center"
                         HorizontalOptions="Center" />
                 </Grid>

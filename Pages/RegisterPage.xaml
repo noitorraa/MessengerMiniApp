@@ -4,11 +4,11 @@
              x:Class="MessengerMiniApp.Pages.RegisterPage"
              Title="Регистрация"
              NavigationPage.HasNavigationBar="False"
-             BackgroundColor="{DynamicResource Primary}">
+             BackgroundColor="{DynamicResource PrimaryColor}">
 
     <ScrollView>
         <Grid Padding="20"
-              RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, *"
+              RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto"
               ColumnDefinitions="*">
 
             <!-- 1. Картинка -->
@@ -38,14 +38,14 @@
 
                 <!-- Логин -->
                 <StackLayout Spacing="4">
-                     <Border BackgroundColor="{DynamicResource InputBackground}"
+                     <Border BackgroundColor="{DynamicResource InputBackgroundColor}"
                             Padding="12"
                             StrokeThickness="0"
                             StrokeShape="RoundRectangle 6">
                         <Grid ColumnDefinitions="Auto,*">
                             <BoxView WidthRequest="2"
                                      HeightRequest="24"
-                                     Color="{DynamicResource Tertiary}"
+                                     Color="{DynamicResource TertiaryColor}"
                                      VerticalOptions="Center" />
                             <Entry Grid.Column="1"
                                    x:Name="LoginEntry"
@@ -66,14 +66,14 @@
 
                 <!-- Телефон -->
                 <StackLayout Spacing="4">
-                     <Border BackgroundColor="{DynamicResource InputBackground}"
+                     <Border BackgroundColor="{DynamicResource InputBackgroundColor}"
                             Padding="12"
                             StrokeThickness="0"
                             StrokeShape="RoundRectangle 6">
                         <Grid ColumnDefinitions="Auto,*">
                             <BoxView WidthRequest="2"
                                      HeightRequest="24"
-                                     Color="{DynamicResource Tertiary}"
+                                     Color="{DynamicResource TertiaryColor}"
                                      VerticalOptions="Center" />
                             <Entry Grid.Column="1"
                                    x:Name="PhoneEntry"
@@ -95,14 +95,14 @@
 
                 <!-- Пароль -->
                 <StackLayout Spacing="4">
-                     <Border BackgroundColor="{DynamicResource InputBackground}"
+                     <Border BackgroundColor="{DynamicResource InputBackgroundColor}"
                             Padding="12"
                             StrokeThickness="0"
                             StrokeShape="RoundRectangle 6">
                         <Grid ColumnDefinitions="Auto,*">
                             <BoxView WidthRequest="2"
                                      HeightRequest="24"
-                                     Color="{DynamicResource Tertiary}"
+                                     Color="{DynamicResource TertiaryColor}"
                                      VerticalOptions="Center" />
                             <Entry Grid.Column="1"
                                    x:Name="PasswordEntry"
@@ -124,14 +124,14 @@
 
                 <!-- Подтверждение пароля -->
                 <StackLayout Spacing="4">
-                     <Border BackgroundColor="{DynamicResource InputBackground}"
+                     <Border BackgroundColor="{DynamicResource InputBackgroundColor}"
                             Padding="12"
                             StrokeThickness="0"
                             StrokeShape="RoundRectangle 6">
                         <Grid ColumnDefinitions="Auto,*">
                             <BoxView WidthRequest="2"
                                      HeightRequest="24"
-                                     Color="{DynamicResource Tertiary}"
+                                     Color="{DynamicResource TertiaryColor}"
                                      VerticalOptions="Center" />
                             <Entry Grid.Column="1"
                                    x:Name="ConfirmPasswordEntry"
@@ -163,18 +163,18 @@
 
                 <!-- Отправить код -->
                 <Button x:Name="SendCodeButton"
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        Margin="5"
-                        Grid.ColumnSpan="2"
-                        Text="Отправить код"
-                        FontSize="20"
-                        TextColor="{DynamicResource White}"
-                        BackgroundColor="{DynamicResource Secondary}"
-                        CornerRadius="100"
-                        HeightRequest="60"
-                        HorizontalOptions="Fill"
-                        Clicked="OnSendCodeClicked" />
+                             Grid.Row="0"
+                             Grid.Column="0"
+                             Margin="5"
+                             Grid.ColumnSpan="2"
+                             Text="Отправить код"
+                             FontSize="20"
+                             TextColor="{DynamicResource White}"
+                             BackgroundColor="{DynamicResource SecondaryColor}"
+                             CornerRadius="100"
+                             HeightRequest="60"
+                             HorizontalOptions="Fill"
+                             Clicked="OnSendCodeClicked" />
 
                 <!-- Ввод кода -->
                 <Border
@@ -184,47 +184,47 @@
                     HeightRequest="60"
                     HorizontalOptions="Fill"
                     BackgroundColor="Transparent"
-                    Stroke="{DynamicResource Tertiary}" 
+                    Stroke="{DynamicResource TertiaryColor}"
                     StrokeThickness="0"
                     StrokeShape="RoundRectangle,0">
-                <Entry
-                    x:Name="CodeEntry"
-                    Placeholder="Введите код"
-                    PlaceholderColor="{DynamicResource SupportingTextColor}"
-                    TextColor="{DynamicResource SupportingTextColor}"
-                    FontFamily="Roboto"
-                    FontSize="16"
-                    BackgroundColor="Transparent"
-                    VerticalOptions="Center" />
+                    <Entry
+                        x:Name="CodeEntry"
+                        Placeholder="Введите код"
+                        PlaceholderColor="{DynamicResource SupportingTextColor}"
+                        TextColor="{DynamicResource SupportingTextColor}"
+                        FontFamily="Roboto"
+                        FontSize="16"
+                        BackgroundColor="Transparent"
+                        VerticalOptions="Center" />
                 </Border>
 
                 <!-- Подтвердить код -->
                 <Button x:Name="ConfirmBtn"
-                        Grid.Row="0"
-                        Grid.Column="1"
-                        Text="Подтвердить код"
-                        FontSize="20"
-                        TextColor="{DynamicResource White}"
-                        BackgroundColor="{DynamicResource Secondary}"
-                        CornerRadius="100"
-                        HeightRequest="60"
-                        HorizontalOptions="Fill"
-                        Clicked="ConfirmRegistrationClicked"/>
+                             Grid.Row="0"
+                             Grid.Column="1"
+                             Text="Подтвердить код"
+                             FontSize="20"
+                             TextColor="{DynamicResource White}"
+                             BackgroundColor="{DynamicResource SecondaryColor}"
+                             CornerRadius="100"
+                             HeightRequest="60"
+                             HorizontalOptions="Fill"
+                             Clicked="ConfirmRegistrationClicked"/>
 
                 <!-- Зарегистрироваться -->
                 <Button x:Name="regBtn"
-                        Grid.Row="1"
-                        Grid.Column="0"
-                        Grid.ColumnSpan="2"
-                        Text="Зарегистрироваться"
-                        FontSize="20"
-                        TextColor="{DynamicResource White}"
-                        BackgroundColor="{DynamicResource Secondary}"
-                        CornerRadius="100"
-                        HeightRequest="60"
-                        HorizontalOptions="Fill"
-                        IsEnabled="False"
-                        Clicked="OnRegisterClicked" />
+                             Grid.Row="1"
+                             Grid.Column="0"
+                             Grid.ColumnSpan="2"
+                             Text="Зарегистрироваться"
+                             FontSize="20"
+                             TextColor="{DynamicResource White}"
+                             BackgroundColor="{DynamicResource SecondaryColor}"
+                             CornerRadius="100"
+                             HeightRequest="60"
+                             HorizontalOptions="Fill"
+                             IsEnabled="False"
+                             Clicked="OnRegisterClicked" />
 
             </Grid>
         </Grid>
