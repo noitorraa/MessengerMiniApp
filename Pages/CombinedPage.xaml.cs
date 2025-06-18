@@ -27,7 +27,7 @@ namespace MessengerMiniApp.Pages
         {
             InitializeComponent();
             _userId = userId;
-            App.ThemeChanged += OnThemeChanged;
+            
             // Инициализация коллекции чатов
             _chats = new ObservableCollection<ChatDto>();
             ChatListView.ItemsSource = _chats;
@@ -41,10 +41,16 @@ namespace MessengerMiniApp.Pages
 
         private async void OnThemeChanged()
         {
-            await this.FadeTo(0, 200); // Плавное исчезновение
-            Navigation.PushAsync(new CombinedPage(_userId));
+            await this.FadeTo(0, 200);
+
+            // Создаем новую страницу с нулевой прозрачностью
+            var newPage = new CombinedPage(_userId) { Opacity = 0 };
+
+            await Navigation.PushAsync(newPage);
             Navigation.RemovePage(this);
-            await this.FadeTo(1, 200); // Плавное появление
+
+            // Анимируем появление НОВОЙ страницы
+            await newPage.FadeTo(1, 200);
         }
 
         protected override void OnDisappearing()
@@ -56,7 +62,7 @@ namespace MessengerMiniApp.Pages
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-
+            App.ThemeChanged += OnThemeChanged;
             ThemeToggle.IsToggled = Application.Current.UserAppTheme == AppTheme.Dark;
             
             // Подключаемся к SignalR для чатов
@@ -103,8 +109,10 @@ namespace MessengerMiniApp.Pages
 
         public void ApplyTheme()
         {
-            // Принудительно обновляем свойства, связанные с темой
-            UpdateUI();
+            if (this.IsVisible) // Обновляем только видимые страницы
+            {
+                UpdateUI();
+            }
         }
 
 

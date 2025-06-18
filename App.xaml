@@ -16,7 +16,7 @@
             <conv:UserIdToColorConverter x:Key="UserIdToColorConverter" />
             <conv:UserIdToAlignmentConverter x:Key="UserIdToAlignmentConverter" />
             <conv:IsOwnMessageToBoolConverter x:Key="IsOwnMessageToBoolConverter" />
-            <conv:IsFileMessageConverter x:Key="IsFileMessageConverter"/>
+            <conv:FileTypeToIconConverter x:Key="FileTypeToIconConverter" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/DarkTheme.xaml" />
                 <ResourceDictionary Source="Resources/Styles/LightTheme.xaml" />

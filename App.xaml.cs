@@ -19,16 +19,6 @@ namespace MessengerMiniApp
             InitializeComponent();
             try
             {
-                ChatViewModel.ClearCacheOnStartup();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Ошибка в ClearCacheOnStartup: " + ex);
-                throw;
-            }
-
-            try
-            {
                 LoadTheme();
             }
             catch (Exception ex)
@@ -38,16 +28,10 @@ namespace MessengerMiniApp
             }
         }
 
-        private async void LoadTheme()
+        private void LoadTheme()
         {
             try
             {
-                // Плавное исчезновение интерфейса
-                if (Current.MainPage != null)
-                {
-                    await Current.MainPage.FadeTo(0, 200);
-                }
-
                 ICollection<ResourceDictionary> mergedDictionaries = Current.Resources.MergedDictionaries;
                 if (mergedDictionaries != null)
                 {
@@ -60,13 +44,11 @@ namespace MessengerMiniApp
                     mergedDictionaries.Add(theme);
                 }
 
-                // Принудительное обновление
-                (Current.MainPage as IThemeAware)?.ApplyTheme();
-
-                // Плавное появление интерфейса
-                if (Current.MainPage != null)
+                // Пробрасываем ApplyTheme до текущей страницы
+                if (Current.MainPage is NavigationPage navPage &&
+                    navPage.CurrentPage is IThemeAware currentPage)
                 {
-                    await Current.MainPage.FadeTo(1, 200);
+                    currentPage.ApplyTheme();
                 }
             }
             catch (Exception ex)
@@ -83,15 +65,22 @@ namespace MessengerMiniApp
 
         protected override void OnStart()
         {
-            base.OnStart();
+            ChatViewModel.ClearOldCache();
             // Используем правильное событие
             Application.Current.RequestedThemeChanged += OnAppThemeChanged;
+            base.OnStart();
         }
 
         protected override void OnSleep()
         {
-            base.OnSleep();
+            var currentPage = Current.MainPage;
+            if (currentPage is NavigationPage navPage && navPage.CurrentPage is ChatPage chatPage)
+            {
+                var vm = chatPage.BindingContext as ChatViewModel;
+                vm?.SaveMessagesToCache();
+            }
             Application.Current.RequestedThemeChanged -= OnAppThemeChanged;
+            base.OnSleep();
         }
 
         /// <summary>
@@ -107,11 +96,11 @@ namespace MessengerMiniApp
 
         protected override void OnResume()
         {
-            // Восстанавливаем соединение при возврате в приложение
             var currentPage = Current.MainPage;
-            if (currentPage is Shell shell && shell.CurrentPage?.BindingContext is ChatViewModel vm)
+            if (currentPage is NavigationPage navPage && navPage.CurrentPage is ChatPage chatPage)
             {
-                vm.ReconnectAsync();
+                var vm = chatPage.BindingContext as ChatViewModel;
+                vm?.LoadMessagesFromCache();
             }
             base.OnResume();
         }
