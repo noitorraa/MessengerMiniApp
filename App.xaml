@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:conv="clr-namespace:MessengerMiniApp.Converters"
+             xmlns:local="clr-namespace:MessengerMiniApp"
+             x:Class="MessengerMiniApp.App">
+
+    <!-- ЕДИНСТВЕННЫЙ ResourceDictionary -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <conv:InverseBoolConverter x:Key="InverseBoolConverter"/>
+            <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <conv:NullToColorConverter x:Key="NullToColorConverter" />
+            <conv:StatusToColorConverter x:Key="StatusToColorConverter" />
+            <conv:StatusToTextConverter x:Key="StatusToTextConverter" />
+            <conv:UserIdToColorConverter x:Key="UserIdToColorConverter" />
+            <conv:UserIdToAlignmentConverter x:Key="UserIdToAlignmentConverter" />
+            <conv:IsOwnMessageToBoolConverter x:Key="IsOwnMessageToBoolConverter" />
+            <conv:FileTypeToIconConverter x:Key="FileTypeToIconConverter" />
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/DarkTheme.xaml" />
+                <ResourceDictionary Source="Resources/Styles/LightTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+</Application>

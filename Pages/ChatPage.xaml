@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:behaviors="clr-namespace:MessengerMiniApp.Behaviors"
+    xmlns:conv="clr-namespace:MessengerMiniApp.Converters"
+    x:Class="MessengerMiniApp.Pages.ChatPage"
+    x:Name="PageRoot"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="{DynamicResource PrimaryColor}">
+
+    <ContentPage.Resources>
+        <conv:NullToColorConverter x:Key="NullToColorConverter" />
+        <conv:IsOwnMessageToBoolConverter x:Key="IsOwnMessageToBoolConverter" />
+        <conv:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <conv:StatusToColorConverter x:Key="StatusToColorConverter" />
+        <conv:StatusToTextConverter x:Key="StatusToTextConverter" />
+        <conv:UserIdToAlignmentConverter x:Key="UserIdToAlignmentConverter" />
+        <conv:UserIdToColorConverter x:Key="UserIdToColorConverter" />
+        <conv:FileTypeToIconConverter x:Key="FileTypeToIconConverter" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *, Auto">
+
+        <!-- ====== Шапка чата (row 0) ====== -->
+        <Grid Grid.Row="0" Padding="20,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Кнопка «Назад» -->
+            <Button Text="‹"
+                    FontSize="40"
+                    TextColor="{DynamicResource White}"
+                    BackgroundColor="Transparent"
+                    WidthRequest="40"
+                    HeightRequest="40"
+                    Padding="0,0,20,0"
+                    VerticalOptions="Start"
+                    HorizontalOptions="Start"
+                    Clicked="OnBackButtonClicked"/>
+
+            <!-- Информация о пользователе (Avatar, Username, Status) -->
+            <StackLayout Grid.Column="1" Orientation="Horizontal" Spacing="20" VerticalOptions="Center">
+                <Frame WidthRequest="50"
+                       HeightRequest="50"
+                       CornerRadius="25"
+                       Padding="0"
+                       IsClippedToBounds="True"
+                       BackgroundColor="{Binding PeerAvatar, Converter={StaticResource NullToColorConverter}}"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Center">
+                    <!-- Если PeerAvatar != null — покажем картинку, иначе просто оставим фон -->
+                        <Image Source="{Binding Avatar}"
+                           Aspect="AspectFill"
+                           VerticalOptions="Fill"
+                           HorizontalOptions="Fill"
+                           IsVisible="{Binding PeerAvatar, Converter={StaticResource NullToVisibilityConverter}}"/>
+                </Frame>
+
+                <StackLayout Spacing="0" VerticalOptions="Center">
+                    <Label Text="{Binding PeerUsername}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="{DynamicResource White}"/>
+                    <Label Text="{Binding PeerStatus}"
+                           FontSize="12"
+                           TextColor="{DynamicResource TextColor}"/>
+                </StackLayout>
+            </StackLayout>
+        </Grid>
+
+        <!-- ====== Область сообщений (row 1) с скруглёнными верхними краями ====== -->
+        <Border Grid.Row="1" StrokeThickness="0" BackgroundColor="{DynamicResource Gray300}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="30,30,0,0" />
+            </Border.StrokeShape>
+            <ScrollView BackgroundColor="Transparent">
+                <VerticalStackLayout>
+                    <CollectionView x:Name="MessagesCollectionView"
+                                    ItemsSource="{Binding Messages}"
+                                    SelectionMode="None"
+                                    RemainingItemsThreshold="5"
+                                    RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                       
+                        <CollectionView.Header>
+                            <StackLayout Padding="10" HorizontalOptions="Center">
+                                <ActivityIndicator IsRunning="{Binding IsLoadingMore}"
+                               IsVisible="{Binding IsLoadingMore}"/>
+                                <Label Text="Загрузка истории..."
+                                   IsVisible="{Binding IsLoadingMore}"
+                                   HorizontalOptions="Center"/>
+                            </StackLayout>
+                        </CollectionView.Header>
+
+                        <CollectionView.EmptyView>
+                            <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
+                                <Label Text="Нет сообщений"
+                                       TextColor="{DynamicResource TextColor}"
+                                       FontSize="14"
+                                       HorizontalTextAlignment="Center"/>
+                            </StackLayout>
+                        </CollectionView.EmptyView>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="10,5"
+                                      HorizontalOptions="{Binding UserID,
+                                          Converter={StaticResource UserIdToAlignmentConverter},
+                                          ConverterParameter={x:Reference PageRoot}}">
+
+                                    <!-- Пузырёк сообщения -->
+                                    <Frame CornerRadius="20"
+                                           Padding="15"
+                                           HasShadow="False"
+                                           BackgroundColor="{Binding UserID, Converter={StaticResource UserIdToColorConverter}, ConverterParameter={x:Reference PageRoot}}"
+                                           HorizontalOptions="{Binding UserID, Converter={StaticResource UserIdToAlignmentConverter}, ConverterParameter={x:Reference PageRoot}}">
+
+                                        <!-- FadeInBehavior для анимации появления -->
+                                        <Frame.Behaviors>
+                                            <behaviors:FadeInBehavior />
+                                            <behaviors:TapAnimationBehavior />
+                                        </Frame.Behaviors>
+
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Файловое сообщение -->
+                                            <Grid Grid.Row="0"
+                                                IsVisible="{Binding IsFileMessage}">
+                                                <Grid.RowDefinitions>
+                                                    <!-- Превью или иконка -->
+                                                    <RowDefinition Height="Auto" />
+                                                    <!-- Имя файла -->
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+
+                                                <!-- === Превью большими картинками (для изображений) === -->
+                                                <Image Source="{Binding LocalPath}"
+                                                 Aspect="AspectFill"
+                                                 HeightRequest="200"
+                                                 IsVisible="{Binding IsImageFile}"
+                                                 Grid.Row="0">
+                                                    <Image.GestureRecognizers>
+                                                        <TapGestureRecognizer 
+                                                        Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.OpenFileCommand}"
+                                                        CommandParameter="{Binding .}"/>
+                                                    </Image.GestureRecognizers>
+                                                </Image>
+
+                                                <!-- === Иконка посередине для остальных файлов === -->
+                                                <Image Source="{Binding FileType, Converter={StaticResource FileTypeToIconConverter}}"
+                                                 WidthRequest="64"
+                                                 HeightRequest="64"
+                                                 HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 IsVisible="{Binding IsImageFile, Converter={StaticResource InverseBoolConverter}}"
+                                                 Grid.Row="0">
+                                                    <Image.GestureRecognizers>
+                                                        <TapGestureRecognizer 
+                                                        Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.OpenFileCommand}"
+                                                        CommandParameter="{Binding .}"/>
+                                                    </Image.GestureRecognizers>
+                                                </Image>
+
+                                                <!-- === Имя файла под превью/иконкой === -->
+                                                <Label Text="{Binding FileName}"
+                                                 Grid.Row="1"
+                                                 HorizontalOptions="Center"
+                                                 TextDecorations="Underline"
+                                                 TextColor="Blue">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer 
+                                                        Command="{Binding Source={x:Reference PageRoot}, Path=BindingContext.OpenFileCommand}"
+                                                        CommandParameter="{Binding .}"/>
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                            </Grid>
+
+
+
+                                            <!-- Текстовое сообщение -->
+                                            <Label Text="{Binding Content}"
+                                             Grid.Row="0"
+                                             IsVisible="{Binding IsFileMessage, Converter={StaticResource InverseBoolConverter}}"
+                                             FontSize="14"
+                                             HorizontalOptions="Start"
+                                             TextColor="{DynamicResource Gray900}" />
+
+                                            <!-- Время и статус -->
+                                            <Grid Grid.Row="1"
+                                                Margin="0,5,0,0"
+                                                HorizontalOptions="{Binding UserID, Converter={StaticResource UserIdToAlignmentConverter}, ConverterParameter={x:Reference PageRoot}}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Label Text="{Binding Time}"
+                                                   Grid.Column="0"
+                                                   FontSize="12"
+                                                   TextColor="{DynamicResource Gray900}"/>
+                                                <Label Text="{Binding Status, Converter={StaticResource StatusToTextConverter}}"
+                                                   Grid.Column="2"
+                                                   FontSize="14"
+                                                   TextColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                                   IsVisible="{Binding UserID, Converter={StaticResource IsOwnMessageToBoolConverter}, ConverterParameter={x:Reference PageRoot}}"/>
+                                            </Grid>
+                                        </Grid>
+
+                                    </Frame>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Border>
+
+        <!-- ====== Панель ввода (row 2) ====== -->
+        <Border Grid.Row="2"
+                StrokeThickness="0"
+                BackgroundColor="#F3CBD8">
+
+            <!-- Используем Grid, чтобы зафиксировать ширину поля ввода -->
+            <Grid Padding="16,12" ColumnSpacing="10"
+                  ColumnDefinitions="Auto,Auto,*">
+
+                <!-- Иконка add_circle - по нажатию можно загружать файлы из галереи или другие файлы (как в телеграмме) -->
+                <ImageButton Grid.Column="0"
+                             Source="add_circle.png"
+                             WidthRequest="24"
+                             HeightRequest="24"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Start"
+                             Command="{Binding AttachFileCommand}" />
+
+                <!-- Иконка mood (смайлик) - тут по нажатию нужно открывать панель смайликов -->
+                <ImageButton Grid.Column="1"
+                             Source="mood.png"
+                             WidthRequest="24"
+                             HeightRequest="24"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Start" />
+
+                <!-- Контейнер поля ввода в звёздной колонке -->
+                <Border Grid.Column="2"
+                        BackgroundColor="{DynamicResource Gray400}"
+                        VerticalOptions="Center"
+                        HorizontalOptions="FillAndExpand">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="20,20,20,20" />
+                    </Border.StrokeShape>
+
+                    <!-- Entry занимает всю доступную ширину, но не растягивается дальше экрана -->
+                    <Entry Text="{Binding NewMessageText}"
+                           Placeholder="Введите сообщение"
+                           PlaceholderColor="{DynamicResource SupportingTextColor}"
+                           BackgroundColor="Transparent"
+                           VerticalOptions="Center"
+                           HorizontalOptions="FillAndExpand"
+                           Margin="12,0"
+                           Completed="OnEntryCompleted" />
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

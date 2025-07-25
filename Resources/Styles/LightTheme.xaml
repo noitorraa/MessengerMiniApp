@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Основные цвета -->
+    <Color x:Key="PrimaryColor">#7F799B</Color>
+    <Color x:Key="SecondaryColor">#FCA5A5</Color>
+    <Color x:Key="TertiaryColor">#65558F</Color>
+    <Color x:Key="InputBackgroundColor">#E4E4E7</Color>
+    <Color x:Key="TextColor">#FF595263</Color>
+    <Color x:Key="SupportingTextColor">#3F3F46</Color>
+
+    <Color x:Key="ActiveTabTextColor">White</Color>
+    <Color x:Key="ActiveTabBackgroundColor">#FCA5A5</Color>
+    <Color x:Key="InactiveTabTextColor">Black</Color>
+    <Color x:Key="InactiveTabBackgroundColor">White</Color>
+
+    <!-- Серые оттенки -->
+    <Color x:Key="Gray100">#F1F1F1</Color>
+    <Color x:Key="Gray200">#E4E4E7</Color>
+    <Color x:Key="Gray300">#D4D4D8</Color>
+    <Color x:Key="Gray400">#A1A1AA</Color>
+    <Color x:Key="Gray500">#71717A</Color>
+    <Color x:Key="Gray600">#52525B</Color>
+    <Color x:Key="Gray700">#3F3F46</Color>
+    <Color x:Key="Gray800">#27272A</Color>
+    <Color x:Key="Gray900">#18181B</Color>
+
+    <!-- Красные оттенки -->
+    <Color x:Key="Red300">#FCA5A5</Color>
+    <Color x:Key="Red500">#EF4444</Color>
+    <Color x:Key="Red700">#B91C1C</Color>
+
+    <!-- Сланцевые оттенки -->
+    <Color x:Key="Slate300">#CBD5E1</Color>
+    <Color x:Key="Slate500">#64748B</Color>
+    <Color x:Key="Slate700">#334155</Color>
+
+    <!-- Базовые цвета -->
+    <Color x:Key="White">White</Color>
+    <Color x:Key="Black">Black</Color>
+
+</ResourceDictionary>

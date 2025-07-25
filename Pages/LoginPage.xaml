@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MessengerMiniApp.Pages.LoginPage"
+             Title="LoginPage"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{DynamicResource PrimaryColor}">
+
+    <ScrollView>
+        <Grid RowDefinitions="Auto, Auto, Auto, Auto" Padding="16">
+
+            <!-- 1. Заголовок -->
+            <Label Grid.Row="0"
+                   Text="MessengerApp"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="{DynamicResource TextColor}"
+                   HorizontalOptions="Center"
+                   Margin="0,24,0,12" />
+
+            <!-- 2. Картинка -->
+            <Image Grid.Row="1"
+                   Source="texting_communication.png"
+                   Aspect="AspectFill"
+                   HeightRequest="200"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Center"
+                   Margin="0,0,0,24" />
+
+            <!-- 3. Форма -->
+            <StackLayout Grid.Row="2"
+                         Spacing="16"
+                         HorizontalOptions="Center"
+                         WidthRequest="300">
+
+                <!-- Логин -->
+                <StackLayout Spacing="4">
+                     <Border BackgroundColor="{DynamicResource InputBackgroundColor}"
+                            Padding="12"
+                            StrokeShape="RoundRectangle 6">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <BoxView WidthRequest="2"
+                                     HeightRequest="24"
+                                     Color="{DynamicResource TertiaryColor}"
+                                     VerticalOptions="Center" />
+                            <Entry Grid.Column="1"
+                                   Placeholder="Логин"
+                                   x:Name="LoginEntry"
+                                   PlaceholderColor="{DynamicResource SupportingTextColor}"
+                                   TextColor="{DynamicResource SupportingTextColor}"
+                                   FontFamily="Roboto"
+                                   FontSize="16"
+                                   Margin="8,0"
+                                   BackgroundColor="Transparent" />
+                        </Grid>
+                     </Border>
+                    <Label Text="Логин должен содержать больше 3 символов"
+                           FontSize="12"
+                           TextColor="{DynamicResource SupportingTextColor}"
+                           HorizontalOptions="Center" />
+                </StackLayout>
+
+                <!-- Пароль -->
+                <StackLayout Spacing="4">
+                     <Border BackgroundColor="{DynamicResource InputBackgroundColor}"
+                            Padding="12"
+                            StrokeShape="RoundRectangle 6">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <BoxView WidthRequest="2"
+                                     HeightRequest="24"
+                                     Color="{DynamicResource TertiaryColor}"
+                                     VerticalOptions="Center" />
+                            <Entry Grid.Column="1"
+                                   Placeholder="Пароль"
+                                   x:Name="PasswordEntry"
+                                   IsPassword="True"
+                                   PlaceholderColor="{DynamicResource SupportingTextColor}"
+                                   TextColor="{DynamicResource SupportingTextColor}"
+                                   FontFamily="Roboto"
+                                   FontSize="16"
+                                   Margin="8,0"
+                                   BackgroundColor="Transparent" />
+                        </Grid>
+                     </Border>
+                    <Label Text="Пароль должен содержать 8-30 символов, включая заглавные, строчные буквы, цифры и спецсимволы"
+                           FontSize="12"
+                           TextColor="{DynamicResource SupportingTextColor}"
+                           HorizontalOptions="Center" />
+                </StackLayout>
+
+                <!-- Кнопка Войти -->
+                <Button Text="Войти"
+                        FontSize="20"
+                        TextColor="{DynamicResource WhiteColor}"
+                        BackgroundColor="{DynamicResource SecondaryColor}"
+                        CornerRadius="100"
+                        HeightRequest="60"
+                        HorizontalOptions="Fill"
+                        Clicked="OnLoginClicked" />
+            </StackLayout>
+
+            <!-- 4. Футер: ссылки -->
+            <StackLayout Grid.Row="3"
+                         Spacing="12"
+                         HorizontalOptions="Center"
+                         Margin="0,24,0,24">
+                <Label Text="Регистрация"
+                       FontSize="16"
+                       TextColor="{DynamicResource SupportingTextColor}"
+                       HorizontalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRegisterClicked" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label Text="Забыли пароль?"
+                       FontSize="16"
+                       TextColor="{DynamicResource SupportingTextColor}"
+                       HorizontalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </StackLayout>
+
+        </Grid>
+    </ScrollView>
+</ContentPage>

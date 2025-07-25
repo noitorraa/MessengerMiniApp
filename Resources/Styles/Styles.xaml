@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Text Styles -->
+    <Style TargetType="Label" x:Key="AppTitle">
+        <Setter Property="FontFamily" Value="LatoBold" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="SupportingText">
+        <Setter Property="FontFamily" Value="Roboto" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{StaticResource SupportingTextColor}" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="LinkText">
+        <Setter Property="FontFamily" Value="Roboto" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+    </Style>
+
+    <!-- Button Styles -->
+    <Style TargetType="Button" x:Key="PrimaryButton">
+        <Setter Property="BackgroundColor" Value="{StaticResource SecondaryColor}" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="FontFamily" Value="Roboto" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="CornerRadius" Value="100" />
+        <Setter Property="HeightRequest" Value="66" />
+        <Setter Property="WidthRequest" Value="191" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+    </Style>
+
+    <Style TargetType="Button" x:Key="TextButton">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="FontFamily" Value="Roboto" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="BorderColor" Value="Transparent" />
+    </Style>
+
+    <!-- Entry Styles -->
+    <Style TargetType="Entry" x:Key="StandardEntry">
+        <Setter Property="FontFamily" Value="Roboto" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource TextColor}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+    </Style>
+
+    <!-- Frame Styles -->
+    <Style TargetType="Frame" x:Key="InputFrame">
+        <Setter Property="BackgroundColor" Value="{StaticResource InputBackgroundColor}" />
+        <Setter Property="Padding" Value="16,4" />
+        <Setter Property="HasShadow" Value="False" />
+        <Setter Property="CornerRadius" Value="4" />
+    </Style>
+
+    <Style TargetType="Frame" x:Key="ButtonFrame">
+        <Setter Property="BackgroundColor" Value="{StaticResource SecondaryColor}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="CornerRadius" Value="100" />
+    </Style>
+</ResourceDictionary>
